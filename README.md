@@ -14,3 +14,7 @@ Project repo for Deep Learning 02456 at DTU
 - [ ] Resampling, downsampling -> why and how?
 - [ ] Loss functions
 - [ ] Conv TAS Net
+- try batch size = 1
+- torch compile if too slow
+- wav2vec is open source - on outputs- good starting poit -similar to what they did before
+- so we need to basically figure out a good way to do the transfer learning
