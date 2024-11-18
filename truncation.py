@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import torch
 
 def truncate_audio_to_4_seconds(directory, duration_seconds=4):
