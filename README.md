@@ -29,3 +29,26 @@ EARS_DATASET
   year={2024}
 }
 ```
+## Reference Links:
+1. HPC Related:
+https://www.hpc.dtu.dk/?page_id=59#scratch
+https://www.hpc.dtu.dk/?page_id=927#Scratch_usage
+https://www.hpc.dtu.dk/?page_id=2534
+https://www.gbar.dtu.dk/index.php/faq
+https://www.hpc.dtu.dk/?page_id=2501
+https://www.hpc.dtu.dk/?page_id=4317
+https://www.hpc.dtu.dk/?page_id=59#scratch
+https://www.hpc.dtu.dk/?page_id=927#Scratch_usage
+https://arxiv.org/abs/1809.07454
+
+3. Dataset:
+https://github.com/sp-uhh/ears_benchmark
+https://pytorch.org/docs/stable/data.html#torch.utils.data.Dataset
+
+5. Model Architecture Related:
+https://github.com/pytorch/audio/blob/main/src/torchaudio/models/conv_tasnet.py
+https://docs.python.org/3/library/glob.html
+
+4. Literature:
+https://arxiv.org/pdf/2408.11842v2
+https://arxiv.org/abs/1809.07454 
