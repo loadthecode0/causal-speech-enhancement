@@ -4,7 +4,7 @@ import torchaudio
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
-class PairedAudioDataset(Dataset):
+class AudioDataset(Dataset):
     def __init__(self, base_dir = "EARS-WHAM16kHz", dataset="train", transform=None):
         """
         Args:
@@ -47,16 +47,3 @@ class PairedAudioDataset(Dataset):
 
         return clean_waveform, noisy_waveform  # Tuple of clean and noisy waveforms
 
-
-
-
-# Create datasets for each split
-#train_dataset = PairedAudioDataset(base_dir, dataset="train")
-#valid_dataset = PairedAudioDataset(base_dir, dataset="valid")
-#test_dataset = PairedAudioDataset(base_dir, dataset="test")
-
-
-# Create DataLoaders
-#train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True, num_workers=4)
-#valid_loader = DataLoader(valid_dataset, batch_size=8, shuffle=False, num_workers=4)
-#test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False, num_workers=4)
