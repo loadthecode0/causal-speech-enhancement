@@ -141,18 +141,18 @@ The Conv-TasNet framework provides an efficient alternative to traditional STFT-
        - Applies normalization across the entire input sequence (both time and channel dimensions).
        - Used in **non-causal configurations**, as it requires access to the entire input sequence for calculating mean and variance.
        - Formula:
-         \[
+         $$
          gLN(F) = \frac{F - \text{E}[F]}{\sqrt{\text{Var}[F] + \epsilon}} \cdot \gamma + \beta
-         \]
+         $$
          where \( F \) is the feature, \( \text{E}[F] \) and \( \text{Var}[F] \) are the mean and variance computed over time and channel dimensions, \( \gamma \) and \( \beta \) are learnable parameters, and \( \epsilon \) ensures numerical stability.
      - **Cumulative Layer Normalization (cLN):**
        - Normalizes features up to the current time step, making it suitable for **causal configurations**.
        - Ensures that no future information is used in real-time processing.
        - Formula:
-         \[
+         $$
          cLN(f_k) = \frac{f_k - \text{E}[f_{t \leq k}]}{\sqrt{\text{Var}[f_{t \leq k}] + \epsilon}} \cdot \gamma + \beta
-         \]
-         where \( f_k \) is the feature at time step \( k \), and normalization is applied only to the data available up to \( k \).
+         $$
+         where $f_k$ is the feature at time step $k$, and normalization is applied only to the data available up to $k$.
 
 **3. Implications:**
    - **Non-Causal (gLN):**
