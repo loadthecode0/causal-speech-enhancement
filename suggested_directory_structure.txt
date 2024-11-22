@@ -1,0 +1,75 @@
+speech_separation_project/
+│
+├── data/                     # Store datasets and data-related scripts
+│   ├── raw/                  # Raw, unprocessed datasets (e.g., WHAM, WSJ0)
+│   ├── processed/            # Preprocessed datasets (e.g., resampled, truncated)
+│   ├── metadata/             # Any metadata or logs related to datasets
+│   ├── download.py           # Script to download datasets
+│   ├── preprocess.py         # Script for preprocessing datasets (e.g., resampling, truncation)
+│   └── split_data.py         # Script for train/test/validation splitting
+│
+├── models/                   # Store model architectures and related files
+│   ├── conv_tasnet.py        # Implementation of Conv-TasNet
+│   ├── dprnn.py              # Implementation of Dual-Path RNN (DPRNN)
+│   ├── sepformer.py          # Implementation of SepFormer
+│   ├── pretrained_weights/   # Store weights for transfer learning
+│   │   ├── conv_tasnet/      # Pretrained Conv-TasNet weights
+│   │   ├── dprnn/            # Pretrained DPRNN weights
+│   │   └── sepformer/        # Pretrained SepFormer weights
+│   ├── utils.py              # Utility functions for models (e.g., initialization, freezing layers)
+│   └── __init__.py           # Module initialization
+│
+├── training/                 # Code related to training models
+│   ├── train_conv_tasnet.py  # Training script for Conv-TasNet
+│   ├── train_dprnn.py        # Training script for DPRNN
+│   ├── train_sepformer.py    # Training script for SepFormer
+│   ├── transfer_train.py     # Transfer learning training script (shared logic)
+│   ├── losses/               # Custom loss functions
+│   │   ├── si_sdr.py         # Scale-Invariant Signal-to-Distortion Ratio (SI-SDR)
+│   │   ├── sisnr.py          # SI-SNR implementation
+│   │   └── pesq_loss.py      # Perceptual Evaluation of Speech Quality (PESQ)
+│   └── callbacks/            # Callbacks for training (e.g., early stopping, learning rate scheduling)
+│       ├── early_stopping.py
+│       ├── lr_scheduler.py
+│       └── wandb_logger.py   # Weights & Biases or other logging tool integration
+│
+├── evaluation/               # Scripts and utilities for evaluation
+│   ├── evaluate.py           # General evaluation script
+│   ├── metrics.py            # Implementation of evaluation metrics (e.g., SI-SDR, PESQ)
+│   ├── plot_results.py       # Generate plots for evaluation results (e.g., spectrograms, loss curves)
+│   └── example_audios/       # Store example input and separated audio files for qualitative evaluation
+│
+├── experiments/              # Store experiment-related data and results
+│   ├── logs/                 # Logs for each experiment (e.g., training/evaluation outputs)
+│   ├── configs/              # Configuration files for experiments (e.g., hyperparameters)
+│   │   ├── conv_tasnet.yaml
+│   │   ├── dprnn.yaml
+│   │   └── sepformer.yaml
+│   ├── results/              # Evaluation results (e.g., metrics, visualizations)
+│   │   ├── conv_tasnet/      
+│   │   ├── dprnn/            
+│   │   └── sepformer/        
+│   └── runs/                 # Checkpoints for experiments
+│       ├── conv_tasnet/
+│       ├── dprnn/
+│       └── sepformer/
+│
+├── notebooks/                # Jupyter notebooks for exploratory analysis and debugging
+│   ├── data_visualization.ipynb  # Data exploration (e.g., spectrograms, waveform plots)
+│   ├── model_comparison.ipynb   # Compare performance across architectures
+│   └── metric_analysis.ipynb    # Study evaluation metrics
+│
+├── utils/                    # General-purpose utilities
+│   ├── audio_processing.py   # Audio processing functions (e.g., normalization, augmentation)
+│   ├── dataset_utils.py      # Functions for managing datasets
+│   └── model_utils.py        # Functions for handling models (e.g., saving/loading weights)
+│
+├── configs/                  # Global configuration files
+│   ├── base_config.yaml      # Base configuration (e.g., paths, dataset settings)
+│   ├── hyperparameters.yaml  # Default hyperparameters for models
+│   └── logging.yaml          # Logging settings
+│
+├── README.md                 # Project overview, setup instructions, and usage guide
+├── requirements.txt          # Python dependencies for the project
+├── environment.yml           # Conda environment file (optional)
+└── main.py                   # Main entry point for running experiments

@@ -165,3 +165,6 @@ The Conv-TasNet framework provides an efficient alternative to traditional STFT-
      - Robust for tasks like live speech enhancement.
 
 This adaptability of Conv-TasNet to both configurations with corresponding normalization techniques highlights its versatility for various speech separation applications, balancing between real-time requirements and accuracy.
+
+## Why do we need to resample audio data?
+Resampling audio standardizes sampling rates across datasets, aligns with model requirements, reduces computational load, and removes unnecessary frequencies. It ensures compatibility with feature extraction methods, avoids aliasing, and balances efficiency with fidelity, commonly resampling to $16 \, \text{kHz}$ for speech tasks.

@@ -3,10 +3,9 @@ import glob
 import torch 
 import torchaudio
 from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
 
-class AudioDataset(Dataset):
-    def __init__(self, base_dir = "EARS-WHAM16kHz", dataset="train", transform=None, seg_length = 16000):
+class EARSWHAMAudioDataset(Dataset):
+    def __init__(self, base_dir = "data/resampled/EARS-WHAM-16.0kHz", dataset="train", transform=None, seg_length = 16000):
         """
         Args:
             base_dir (str): Path to the base directory containing train, valid, and test subdirectories.
@@ -38,8 +37,6 @@ class AudioDataset(Dataset):
             self.data.append((clean_waveform, noisy_waveform))
 
 
-
-
     def __len__(self):
         return len(self.clean_files)
 
@@ -67,3 +64,38 @@ class AudioDataset(Dataset):
 
         return clean_waveform, noisy_waveform  # Tuple of clean and noisy waveforms
 
+'''
+DataLoader Usage:
+# Create dataset instances for each split
+train_dataset = AudioDataset(base_dir="EARS-WHAM-16.0kHz", dataset="train", seg_length=16000)
+valid_dataset = AudioDataset(base_dir="EARS-WHAM-16.0kHz", dataset="valid", seg_length=16000)
+test_dataset = AudioDataset(base_dir="EARS-WHAM-16.0kHz", dataset="test", seg_length=16000)
+
+# Define DataLoader instances
+train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True, num_workers=4, pin_memory=True)
+valid_loader = DataLoader(valid_dataset, batch_size=8, shuffle=False, num_workers=4, pin_memory=True)
+test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False, num_workers=4, pin_memory=True)
+
+# Example usage: Iterate through the training DataLoader
+for batch_idx, (clean_batch, noisy_batch) in enumerate(train_loader):
+    print(f"Batch {batch_idx + 1}")
+    print(f"Clean Shape: {clean_batch.shape}, Noisy Shape: {noisy_batch.shape}")
+
+For Training:
+for epoch in range(num_epochs):
+    for clean_batch, noisy_batch in train_loader:
+        # Move to GPU if available
+        clean_batch = clean_batch.to(device)
+        noisy_batch = noisy_batch.to(device)
+
+        # Forward pass
+        output = model(noisy_batch)
+
+        # Loss calculation and optimization
+        loss = loss_function(output, clean_batch)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    print(f"Epoch {epoch + 1} completed.")
+'''

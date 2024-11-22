@@ -36,8 +36,9 @@ def truncate_audio_to_4_seconds(directory, duration_seconds=4):
         else:
             print(f"Skipping non-audio file: {filename}")
 
+
 # Define the directory containing the audio files
-directory = "/dtu/blackhole/01/212577/datasets_final"
+directory = "../data/raw/EARS-WHAM"
 
 # Truncate all audio files to 4 seconds
 truncate_audio_to_4_seconds(directory, duration_seconds=4)
