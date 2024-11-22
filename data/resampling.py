@@ -1,11 +1,14 @@
 import os
 import torchaudio
 import torchaudio.transforms as T
-import os
-import torchaudio
-import torchaudio.transforms as T
 
-def resample_audio_files(input_directory, output_directory, target_sample_rate=16000):
+def resample_audio_files(input_directory, target_sample_rate=16000):
+    suffix = "-" + (
+        str(round(target_sample_rate/1000, 2)) + "kHz" if (target_sample_rate >= 1000) 
+        else str(round(target_sample_rate)) + "Hz")
+    # output_directory = "../datasets_final/EARS-WHAM"
+    output_directory = "data/resampled/EARS-WHAM" + suffix
+    print(output_directory)
     # Walk through all subdirectories and files
     for root, dirs, files in os.walk(input_directory):
         for filename in files:
@@ -53,8 +56,7 @@ def resample_audio_files(input_directory, output_directory, target_sample_rate=1
 
                 
 # Define the directory containing the audio files
-input_directory = "../datasets_final/EARS-WHAM"
-output_directory = "../datasets_final/EARS-WHAM16kHz"
+input_directory = "../data/raw/EARS-WHAM"
 
 # Resample all audio files to 16 kHz in place
-resample_audio_files(input_directory, output_directory, target_sample_rate=16000)
+resample_audio_files(input_directory, target_sample_rate=16000)

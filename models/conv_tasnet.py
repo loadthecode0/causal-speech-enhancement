@@ -27,20 +27,23 @@ class ConvBlock(torch.nn.Module):
 
     def __init__(
         self,
-        io_channels: int,
-        hidden_channels: int,
-        kernel_size: int,
-        padding: int,
-        dilation: int = 1,
-        no_residual: bool = False,
+        io_channels: int,        # Number of input/output channels
+        hidden_channels: int,    # Intermediate channel size for hidden layers
+        kernel_size: int,        # Size of the convolutional filter
+        padding: int,            # Padding to preserve output dimensions
+        dilation: int = 1,       # Dilation rate for convolution (spaced filters for a larger receptive field)
+        no_residual: bool = False,  # If True, disables residual connections for the final layer
     ):
         super().__init__()
 
         self.conv_layers = torch.nn.Sequential(
-            torch.nn.Conv1d(in_channels=io_channels, out_channels=hidden_channels, kernel_size=1),
-            torch.nn.PReLU(),
-            torch.nn.GroupNorm(num_groups=1, num_channels=hidden_channels, eps=1e-08),
-            torch.nn.Conv1d(
+            torch.nn.Conv1d(in_channels=io_channels, out_channels=hidden_channels, kernel_size=1), # 1D convolution layer, commonly used for audio and time-series data.
+            torch.nn.PReLU(), # Parametric ReLU activation function that introduces non-linearity.
+            torch.nn.GroupNorm(num_groups=1, num_channels=hidden_channels, eps=1e-08), # Normalizes groups of channels to stabilize training. num_groups=1 means it's equivalent to LayerNorm.
+            # Depthwise Convolution:
+            # Second convolution operates depthwise (via groups=hidden_channels), 
+            # which applies a separate filter to each input channel for efficiency.
+            torch.nn.Conv1d( 
                 in_channels=hidden_channels,
                 out_channels=hidden_channels,
                 kernel_size=kernel_size,
@@ -52,11 +55,16 @@ class ConvBlock(torch.nn.Module):
             torch.nn.GroupNorm(num_groups=1, num_channels=hidden_channels, eps=1e-08),
         )
 
+        # If no_residual is True, residual output is disabled (used in the final block).
+        # Otherwise, maps hidden_channels back to io_channels. -> recall the fact about
+        # agreement of input and output dimensions
         self.res_out = (
             None
             if no_residual
             else torch.nn.Conv1d(in_channels=hidden_channels, out_channels=io_channels, kernel_size=1)
         )
+
+        # Always active. Outputs skip connections for better gradient flow.
         self.skip_out = torch.nn.Conv1d(in_channels=hidden_channels, out_channels=io_channels, kernel_size=1)
 
     def forward(self, input: torch.Tensor) -> Tuple[Optional[torch.Tensor], torch.Tensor]:
@@ -95,9 +103,9 @@ class MaskGenerator(torch.nn.Module):
         kernel_size: int,
         num_feats: int,
         num_hidden: int,
-        num_layers: int,
+        num_layers: int, #Define the TCN structure as layers (depth) and stacks (repetition).
         num_stacks: int,
-        msk_activate: str,
+        msk_activate: str, #Activation function for the final mask output.
     ):
         super().__init__()
 
@@ -109,6 +117,8 @@ class MaskGenerator(torch.nn.Module):
 
         self.receptive_field = 0
         self.conv_layers = torch.nn.ModuleList([])
+        # Stacks represent repetitions of the TCN structure.
+        # Layers within stacks use dilated convolutions to expand the receptive field exponentially.
         for s in range(num_stacks):
             for l in range(num_layers):
                 multi = 2**l
@@ -120,7 +130,7 @@ class MaskGenerator(torch.nn.Module):
                         dilation=multi,
                         padding=multi,
                         # The last ConvBlock does not need residual
-                        no_residual=(l == (num_layers - 1) and s == (num_stacks - 1)),
+                        no_residual=(l == (num_layers - 1) and s == (num_stacks - 1)), # Disables residuals in the final layer of the final stack.
                     )
                 )
                 self.receptive_field += kernel_size if s == 0 and l == 0 else (kernel_size - 1) * multi
@@ -186,7 +196,7 @@ class ConvTasNet(torch.nn.Module):
 
     def __init__(
         self,
-        num_sources: int = 2,
+        num_sources: int = 2, #default number of sources is 2
         # encoder/decoder parameters
         enc_kernel_size: int = 16,
         enc_num_feats: int = 512,
