@@ -149,9 +149,7 @@ The Conv-TasNet framework provides an efficient alternative to traditional STFT-
        - Normalizes features up to the current time step, making it suitable for **causal configurations**.
        - Ensures that no future information is used in real-time processing.
        - Formula:
-         $$
-         cLN(f_k) = \frac{f_k - \text{E}[f_{t \leq k}]}{\sqrt{\text{Var}[f_{t \leq k}] + \epsilon}} \cdot \gamma + \beta
-         $$
+         $cLN(f_k) = \frac{f_k - \text{E}[f_{t \leq k}]}{\sqrt{\text{Var}[f_{t \leq k}] + \epsilon}} \cdot \gamma + \beta$
          where $f_k$ is the feature at time step $k$, and normalization is applied only to the data available up to $k$.
 
 **3. Implications:**
