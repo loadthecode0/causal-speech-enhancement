@@ -5,9 +5,7 @@ Normalizing waveforms refers to adjusting the **amplitude** of an audio signal t
 
 ## GroupNorm
 **GroupNorm (Group Normalization)** normalizes input features by dividing channels into $G$ groups and computing the mean and variance within each group. Unlike BatchNorm, it is independent of batch size, making it ideal for small or variable batch sizes. It uses the formula:
-$$
-\hat{x}_{i} = \frac{x_i - \mu}{\sqrt{\sigma^2 + \epsilon}}, \quad y_i = \gamma \hat{x}_i + \beta
-$$
+$\hat{x}_{i} = \frac{x_i - \mu}{\sqrt{\sigma^2 + \epsilon}}, \quad y_i = \gamma \hat{x}_i + \beta$
 where $\gamma$ and $\beta$ are learnable parameters. GroupNorm is effective in tasks like object detection and segmentation, with improved stability over LayerNorm and BatchNorm, though it requires tuning the number of groups ($G$). It's implemented in PyTorch via `nn.GroupNorm`.
 
 ## Residual connections
