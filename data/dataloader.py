@@ -2,7 +2,7 @@ from data.dataset import EARSWHAMAudioDataset # custom class earlier
 from torch.utils.data import DataLoader
 
 class EARSWHAMDataLoader:
-    def __init__(self, base_dir="../../datasets_final/EARS-WHAM16kHz", seg_length=16000, batch_size=8, num_workers=4, transform=None):
+    def __init__(self, base_dir="../datasets_final/EARS-WHAM16kHz", seg_length=16000, batch_size=8, num_workers=4, transform=None):
         self.base_dir = base_dir
         self.seg_length = seg_length
         self.batch_size = batch_size

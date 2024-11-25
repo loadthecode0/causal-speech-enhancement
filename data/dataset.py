@@ -5,7 +5,7 @@ import torchaudio
 from torch.utils.data import Dataset
 
 class EARSWHAMAudioDataset(Dataset):
-    def __init__(self, base_dir = "../../datasets_final/EARS-WHAM-16kHz", dataset="train", transform=None, seg_length = 16000):
+    def __init__(self, base_dir = "../datasets_final/EARS-WHAM-16kHz", dataset="train", transform=None, seg_length = 16000):
         """
         Args:
             base_dir (str): Path to the base directory containing train, valid, and test subdirectories.
@@ -21,8 +21,8 @@ class EARSWHAMAudioDataset(Dataset):
         self.noisy_dir = os.path.join(base_dir, dataset, "noisy")
         print(self.clean_dir, self.noisy_dir)
         # Gather and sort file names to ensure pairing
-        self.clean_files = sorted(glob.glob(os.path.join(self.clean_dir, "**", "*.wav"), recursive=True))
-        self.noisy_files = sorted(glob.glob(os.path.join(self.noisy_dir, "**", "*.wav"), recursive=True))
+        self.clean_files = sorted(glob.glob(os.path.join(self.clean_dir, "**/*.wav"), recursive=True))
+        self.noisy_files = sorted(glob.glob(os.path.join(self.noisy_dir, "**/*.wav"), recursive=True))
         print(self.clean_files, self.noisy_files)
 
         # Ensure clean and noisy file lists match
