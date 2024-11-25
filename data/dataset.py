@@ -5,7 +5,7 @@ import torchaudio
 from torch.utils.data import Dataset
 
 class EARSWHAMAudioDataset(Dataset):
-    def __init__(self, base_dir = "../datasets_final/EARS-WHAM-16kHz", dataset="train", transform=None, seg_length = 16000):
+    def __init__(self, base_dir = "../datasets_final/EARS-WHAM16kHz", dataset="train", transform=None, seg_length = 16000):
         """
         Args:
             base_dir (str): Path to the base directory containing train, valid, and test subdirectories.
