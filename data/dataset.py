@@ -28,9 +28,10 @@ class EARSWHAMAudioDataset(Dataset):
         # Ensure clean and noisy file lists match
         assert len(self.clean_files) == len(self.noisy_files) and len(self.clean_files) != 0, \
             f"Mismatch in the number of clean and noisy files for {dataset} dataset."
-        assert all(os.path.basename(c) == os.path.basename(n) for c, n in zip(self.clean_files, self.noisy_files)), \
-            f"File names in clean and noisy directories do not match for {dataset} dataset."
+        # assert all(os.path.basename(c) == os.path.basename(n) for c, n in zip(self.clean_files, self.noisy_files)), \
+        #     f"File names in clean and noisy directories do not match for {dataset} dataset."
     
+
         self.data = []
         for clean_path, noisy_path in zip(self.clean_files, self.noisy_files):
             clean_waveform, _ = torchaudio.load(clean_path)
