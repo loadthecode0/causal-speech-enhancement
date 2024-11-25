@@ -1,6 +1,6 @@
 import torch
 from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
-from training.losses import SISNRLoss     # SI-SNR loss function
+from training.losses.si_snr import SISNRLoss     # SI-SNR loss function
 from data.dataloader import EARSWHAMDataLoader  # Your custom dataloader class
 
 # Initialize data loaders
@@ -21,7 +21,7 @@ criterion = SISNRLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
 # Training loop
-num_epochs = 20
+num_epochs = 4
 for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0

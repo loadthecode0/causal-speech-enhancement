@@ -21,7 +21,7 @@ criterion = SISNRLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
 # Training loop
-num_epochs = 20
+num_epochs = 4
 for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
