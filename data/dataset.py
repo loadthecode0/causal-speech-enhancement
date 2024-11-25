@@ -21,8 +21,8 @@ class EARSWHAMAudioDataset(Dataset):
         self.noisy_dir = os.path.join(base_dir, dataset, "noisy")
         print(self.clean_dir, self.noisy_dir)
         # Gather and sort file names to ensure pairing
-        self.clean_files = sorted(glob.glob(os.path.join(self.clean_dir, "**", "*.wav")))
-        self.noisy_files = sorted(glob.glob(os.path.join(self.noisy_dir, "**", "*.wav")))
+        self.clean_files = sorted(glob.glob(os.path.join(self.clean_dir, "**", "*.wav"), recursive=True))
+        self.noisy_files = sorted(glob.glob(os.path.join(self.noisy_dir, "**", "*.wav"), recursive=True))
         print(self.clean_files, self.noisy_files)
 
         # Ensure clean and noisy file lists match
