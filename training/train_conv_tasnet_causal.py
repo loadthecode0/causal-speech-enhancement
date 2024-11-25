@@ -11,7 +11,7 @@ from data.dataloader import EARSWHAMDataLoader  # Your custom dataloader class
 
 # Initialize data loaders
 data_loader = EARSWHAMDataLoader(
-    base_dir="../../datasets_final/EARS-WHAM-16kHz",  # Path to the resampled dataset
+    base_dir="../datasets_final/EARS-WHAM-16kHz",  # Path to the resampled dataset
     seg_length=16000,                            # Segment length
     batch_size=8,                                # Batch size
     num_workers=4                                # Number of workers for DataLoader
@@ -27,7 +27,7 @@ criterion = SISNRLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
 # Training loop
-num_epochs = 20
+num_epochs = 4
 for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
