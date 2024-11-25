@@ -1,3 +1,9 @@
+import sys
+import os
+
+# Add the root directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import torch
 from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 from training.losses.si_snr import SISNRLoss     # SI-SNR loss function

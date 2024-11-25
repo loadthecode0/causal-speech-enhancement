@@ -11,6 +11,7 @@ class EARSWHAMDataLoader:
 
     def get_loader(self, split, shuffle=True):
         dataset = EARSWHAMAudioDataset(base_dir=self.base_dir, dataset=split, transform=self.transform, seg_length=self.seg_length)
+        
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=(shuffle if split == "train" else False), 
                             num_workers=self.num_workers, pin_memory=True)
         return loader
