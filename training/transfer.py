@@ -4,6 +4,10 @@ from training.losses.si_snr import SISNRLoss
 from data.dataloader import EARSWHAMDataLoader
 import logging 
 
+'''
+This is based on https://github.com/patrickloeber/pytorchTutorial/blob/master/15_transfer_learning.py
+'''
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -11,9 +15,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger()
 
-'''
-This is based on https://github.com/patrickloeber/pytorchTutorial/blob/master/15_transfer_learning.py
-'''
 
 # Paths for saving and loading weights
 non_causal_weights_path = "non_causal_model.pth"
