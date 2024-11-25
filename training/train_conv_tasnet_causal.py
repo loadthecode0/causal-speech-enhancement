@@ -1,11 +1,11 @@
 import torch
-from models.conv_tasnet import ConvTasNet  # Conv-TasNet model
+from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 from training.losses import SISNRLoss     # SI-SNR loss function
 from data.dataloader import EARSWHAMDataLoader  # Your custom dataloader class
 
 # Initialize data loaders
 data_loader = EARSWHAMDataLoader(
-    base_dir="data/resampled/EARS-WHAM-16.0kHz",  # Path to the resampled dataset
+    base_dir="../../datasets_final/EARS-WHAM-16kHz",  # Path to the resampled dataset
     seg_length=16000,                            # Segment length
     batch_size=8,                                # Batch size
     num_workers=4                                # Number of workers for DataLoader
@@ -16,7 +16,7 @@ valid_loader = data_loader.get_loader(split="valid")
 
 # Initialize model, loss, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = ConvTasNet(num_sources=1).to(device)
+model = build_conv_tasnet(causal=True, num_sources=2).to(device)
 criterion = SISNRLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
