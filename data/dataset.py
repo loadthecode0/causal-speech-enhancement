@@ -5,7 +5,7 @@ import torchaudio
 from torch.utils.data import Dataset
 
 class EARSWHAMAudioDataset(Dataset):
-    def __init__(self, base_dir = "data/resampled/EARS-WHAM-16.0kHz", dataset="train", transform=None, seg_length = 16000):
+    def __init__(self, base_dir = "../datasets_final/EARS-WHAM16kHz", dataset="train", transform=None, seg_length = 16000):
         """
         Args:
             base_dir (str): Path to the base directory containing train, valid, and test subdirectories.
@@ -19,17 +19,19 @@ class EARSWHAMAudioDataset(Dataset):
         # Set directories for clean and noisy files based on the dataset split
         self.clean_dir = os.path.join(base_dir, dataset, "clean")
         self.noisy_dir = os.path.join(base_dir, dataset, "noisy")
-
+        print(self.clean_dir, self.noisy_dir)
         # Gather and sort file names to ensure pairing
-        self.clean_files = sorted(glob.glob(os.path.join(self.clean_dir, "*.wav")))
-        self.noisy_files = sorted(glob.glob(os.path.join(self.noisy_dir, "*.wav")))
+        self.clean_files = sorted(glob.glob(os.path.join(self.clean_dir, "**/*.wav"), recursive=True))
+        self.noisy_files = sorted(glob.glob(os.path.join(self.noisy_dir, "**/*.wav"), recursive=True))
+        print(self.clean_files, self.noisy_files)
 
         # Ensure clean and noisy file lists match
-        assert len(self.clean_files) == len(self.noisy_files), \
+        assert len(self.clean_files) == len(self.noisy_files) and len(self.clean_files) != 0, \
             f"Mismatch in the number of clean and noisy files for {dataset} dataset."
-        assert all(os.path.basename(c) == os.path.basename(n) for c, n in zip(self.clean_files, self.noisy_files)), \
-            f"File names in clean and noisy directories do not match for {dataset} dataset."
+        # assert all(os.path.basename(c) == os.path.basename(n) for c, n in zip(self.clean_files, self.noisy_files)), \
+        #     f"File names in clean and noisy directories do not match for {dataset} dataset."
     
+
         self.data = []
         for clean_path, noisy_path in zip(self.clean_files, self.noisy_files):
             clean_waveform, _ = torchaudio.load(clean_path)

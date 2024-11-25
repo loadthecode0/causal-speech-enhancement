@@ -1,3 +1,9 @@
+import sys
+import os
+
+# Add the root directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import torch
 from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 from training.losses.si_snr import SISNRLoss     # SI-SNR loss function
@@ -8,9 +14,13 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+import logging 
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename='noncausal.log', encoding='utf-8', level=logging.DEBUG)
+
 # Initialize data loaders
 data_loader = EARSWHAMDataLoader(
-    base_dir="../../datasets_final/EARS-WHAM-16kHz",  # Path to the resampled dataset
+    base_dir="../datasets_final/EARS-WHAM16kHz",  # Path to the resampled dataset
     seg_length=16000,                            # Segment length
     batch_size=8,                                # Batch size
     num_workers=4                                # Number of workers for DataLoader
@@ -72,5 +82,7 @@ for epoch in range(num_epochs):
 
     avg_val_loss = val_loss / len(valid_loader)
 
+
     logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}")
     print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}")
+
