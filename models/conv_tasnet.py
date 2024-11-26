@@ -53,7 +53,6 @@ class ConvBlock(torch.nn.Module):
         feature = self.conv_layers(input)
         residual = self.res_out(feature) if not self.no_residual else None
         skip_out = self.skip_out(feature)
-        print(feature.shape, residual.shape if not self.no_residual else "L", skip_out.shape)
         return residual, skip_out
 
 
@@ -141,8 +140,6 @@ class MaskGenerator(torch.nn.Module):
         output = 0.0
         for layer in self.conv_layers:
             residual, skip = layer(feats)
-            # print("___________")
-            # print(feats.shape, skip.shape, residual.shape)
             if residual is not None:
                 feats = feats + residual
             output = output + skip

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 data_loader = EARSWHAMDataLoader(
     base_dir="../datasets_final/EARS-WHAM16kHz",  # Path to the resampled dataset
     seg_length=16000,                            # Segment length
-    batch_size=1,                                # Batch size
+    batch_size=8,                                # Batch size
     num_workers=4                                # Number of workers for DataLoader
 )
 logger.info('Data loader initialized')
@@ -33,7 +33,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 logger.info('Model, loss and optimizer initialized')
 
 # Training loop
-num_epochs = 4
+num_epochs = 1
 logger.info(f'Starting training loop with {num_epochs} epochs')
 for epoch in range(num_epochs):
     model.train()
@@ -49,7 +49,8 @@ for epoch in range(num_epochs):
 
         # Compute loss
         loss = criterion(clean_waveform, estimated_waveform)
-        print(f"Loss: {loss}")
+        if current_step % 10 == 0:
+            print(f"Loss: {loss}")
         # Backward pass and optimization
         optimizer.zero_grad()
         loss.backward()
@@ -78,4 +79,3 @@ for epoch in range(num_epochs):
     avg_val_loss = val_loss / len(valid_loader)
 
     logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}")
-    print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}")
