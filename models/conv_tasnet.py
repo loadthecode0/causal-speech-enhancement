@@ -26,7 +26,7 @@ class ConvBlock(torch.nn.Module):
         no_residual (bool, optional): Disable residual output.
     """
     def __init__(self, io_channels: int, hidden_channels: int, kernel_size: int, 
-                 padding: int = 1, dilation: int = 1, no_residual: bool = False):
+                 dilation: int = 1, no_residual: bool = False):
         super().__init__()
         self.no_residual = no_residual
         self.conv_layers = torch.nn.Sequential(
@@ -37,7 +37,7 @@ class ConvBlock(torch.nn.Module):
                 hidden_channels,
                 hidden_channels,
                 kernel_size=kernel_size,
-                padding=padding,
+                padding= (dilation * (kernel_size - 1) // 2),
                 dilation=dilation,
                 groups=hidden_channels,
             ),
@@ -141,11 +141,11 @@ class MaskGenerator(torch.nn.Module):
         output = 0.0
         for layer in self.conv_layers:
             residual, skip = layer(feats)
-            print("___________")
-            print(feats.shape, skip.shape, residual.shape)
-            # if residual is not None:
-            #     feats = feats + residual
-            # output = output + skip
+            # print("___________")
+            # print(feats.shape, skip.shape, residual.shape)
+            if residual is not None:
+                feats = feats + residual
+            output = output + skip
         output = self.output_prelu(output)
         output = self.output_conv(output)
         output = self.mask_activate(output)
