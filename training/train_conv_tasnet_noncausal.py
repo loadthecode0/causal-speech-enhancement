@@ -13,7 +13,7 @@ from data.dataloader import EARSWHAMDataLoader  # Your custom dataloader class
 data_loader = EARSWHAMDataLoader(
     base_dir="../datasets_final/EARS-WHAM16kHz",  # Path to the resampled dataset
     seg_length=16000,                            # Segment length
-    batch_size=8,                                # Batch size
+    batch_size=1,                                # Batch size
     num_workers=4                                # Number of workers for DataLoader
 )
 
@@ -42,7 +42,7 @@ for epoch in range(num_epochs):
 
         # Compute loss
         loss = criterion(clean_waveform, estimated_waveform)
-
+        print(f"Loss: {loss}")
         # Backward pass and optimization
         optimizer.zero_grad()
         loss.backward()

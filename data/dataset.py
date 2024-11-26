@@ -22,30 +22,31 @@ class EARSWHAMAudioDataset(Dataset):
         print(self.clean_dir, self.noisy_dir)
         # Gather and sort file names to ensure pairing
         self.clean_files = sorted(glob.glob(os.path.join(self.clean_dir, "**/*.wav"), recursive=True))
-        self.noisy_files = sorted(glob.glob(os.path.join(self.noisy_dir, "**/*.wav"), recursive=True))
+        self.noisy_files = sorted(glob.glob(    os.path.join(self.noisy_dir, "**/*.wav"), recursive=True))
         print(self.clean_files, self.noisy_files)
 
+         # Set directories for clean and noisy files based on the dataset split
+        self.clean_dir = os.path.join(base_dir, dataset, "clean")
+        self.noisy_dir = os.path.join(base_dir, dataset, "noisy")
+        print(self.clean_dir, self.noisy_dir)
+        # Gather and sort file names to ensure pairing
+        self.clean_files = sorted(glob.glob(os.path.join(self.clean_dir, "**/*.wav"), recursive=True))
+        self.noisy_files = sorted(glob.glob(os.path.join(self.noisy_dir, "**/*.wav"), recursive=True))
+        print("listed clean and noisy paths")
+
         # Ensure clean and noisy file lists match
-        assert len(self.clean_files) == len(self.noisy_files) and len(self.clean_files) != 0, \
+        assert len(self.clean_files) == len(self.noisy_files), \
             f"Mismatch in the number of clean and noisy files for {dataset} dataset."
-        assert all(os.path.basename(c) == os.path.basename(n) for c, n in zip(self.clean_files, self.noisy_files)), \
-            f"File names in clean and noisy directories do not match for {dataset} dataset."
-    
-        self.data = []
-        for clean_path, noisy_path in zip(self.clean_files, self.noisy_files):
-            clean_waveform, _ = torchaudio.load(clean_path)
-            noisy_waveform, _ = torchaudio.load(noisy_path)
-            self.data.append((clean_waveform, noisy_waveform))
 
 
     def __len__(self):
         return len(self.clean_files)
 
     def __getitem__(self, idx):
-        clean_waveform, noisy_waveform = self.data[idx]
+        clean_waveform, _ = torchaudio.load(self.clean_files[idx])
+        noisy_waveform, _ = torchaudio.load(self.noisy_files[idx])
 
         audio_length = clean_waveform.size(1)
-
 
         #We find a random starting point for the segment
         if audio_length > self.seg_length:
