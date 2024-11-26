@@ -138,13 +138,12 @@ class MaskGenerator(torch.nn.Module):
         batch_size = input.shape[0]
         feats = self.input_norm(input)
         feats = self.input_conv(feats)
-        print(feats.shape)
-        output = torch.empty()
+        output = 0.0
         for layer in self.conv_layers:
             residual, skip = layer(feats)
+            print(feats.shape, skip.shape)
             if residual is not None:
                 feats = feats + residual
-            print(output.shape)
             output = output + skip
         output = self.output_prelu(output)
         output = self.output_conv(output)
