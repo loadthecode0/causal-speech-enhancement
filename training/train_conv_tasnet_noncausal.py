@@ -49,8 +49,7 @@ for epoch in range(num_epochs):
 
         # Compute loss
         loss = criterion(clean_waveform, estimated_waveform)
-        if current_step % 10 == 0:
-            print(f"Loss: {loss}")
+        print(f"Loss: {loss}")
         # Backward pass and optimization
         optimizer.zero_grad()
         loss.backward()
