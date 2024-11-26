@@ -1,8 +1,9 @@
+import sys
+import os
+
 # Add the root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import sys
-import os
 import torch
 from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 from training.losses.si_snr import SISNRLoss     # SI-SNR loss function
@@ -32,7 +33,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 logger.info('Model, loss and optimizer initialized')
 
 # Training loop
-num_epochs = 20
+num_epochs = 4
 logger.info(f'Starting training loop with {num_epochs} epochs')
 for epoch in range(num_epochs):
     model.train()
