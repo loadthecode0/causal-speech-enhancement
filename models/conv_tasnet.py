@@ -141,10 +141,11 @@ class MaskGenerator(torch.nn.Module):
         output = 0.0
         for layer in self.conv_layers:
             residual, skip = layer(feats)
-            print(feats.shape, skip.shape)
-            if residual is not None:
-                feats = feats + residual
-            output = output + skip
+            print("___________")
+            print(feats.shape, skip.shape, residual.shape)
+            # if residual is not None:
+            #     feats = feats + residual
+            # output = output + skip
         output = self.output_prelu(output)
         output = self.output_conv(output)
         output = self.mask_activate(output)
