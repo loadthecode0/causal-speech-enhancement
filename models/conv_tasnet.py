@@ -53,6 +53,7 @@ class ConvBlock(torch.nn.Module):
         feature = self.conv_layers(input)
         residual = self.res_out(feature) if self.no_residual else None
         skip_out = self.skip_out(feature)
+        print(feature.shape, residual.shape, skip_out.shape)
         return residual, skip_out
 
 
