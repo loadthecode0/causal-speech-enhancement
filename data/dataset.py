@@ -40,8 +40,8 @@ class EARSWHAMAudioDataset(Dataset):
         #We find a random starting point for the segment
         if audio_length > self.seg_length:
             start = torch.randint(0, audio_length - self.seg_length, (1, )).item()
-            clean_waveform = clean_waveform[:, start: start + self.segment_length]
-            noisy_waveform = noisy_waveform[:, start:start + self.segment_length]
+            clean_waveform = clean_waveform[:, start: start + self.seg_length]
+            noisy_waveform = noisy_waveform[:, start:start + self.seg_length]
         else:
             pad_length = self.seg_length - audio_length
             clean_waveform = torch.nn.functional.pad(clean_waveform, (0, pad_length))
