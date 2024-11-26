@@ -26,7 +26,7 @@ class ConvBlock(torch.nn.Module):
         no_residual (bool, optional): Disable residual output.
     """
     def __init__(self, io_channels: int, hidden_channels: int, kernel_size: int,
-                 padding: int, dilation: int = 1, no_residual: bool = False):
+                 padding: int = 0, dilation: int = 1, no_residual: bool = False):
         super().__init__()
         self.conv_layers = torch.nn.Sequential(
             torch.nn.Conv1d(io_channels, hidden_channels, kernel_size=1),
