@@ -38,7 +38,7 @@ logger.info(f'Starting training loop with {num_epochs} epochs')
 for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
-
+    print(len(train_loader))
     for clean_waveform, noisy_waveform in train_loader:
         # Move data to the GPU if available
         clean_waveform = clean_waveform.to(device)
