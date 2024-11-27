@@ -1,21 +1,25 @@
-import sys
-import os
-
 # Add the root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+import sys
+import os
 import torch
 from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 from training.losses.si_snr import SISNRLoss     # SI-SNR loss function
 from data.dataloader import EARSWHAMDataLoader  # Your custom dataloader class
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 # Initialize data loaders
 data_loader = EARSWHAMDataLoader(
-    base_dir="../datasets_final/EARS-WHAM-16kHz",  # Path to the resampled dataset
+    base_dir="../datasets_final/EARS-WHAM16kHz",  # Path to the resampled dataset
     seg_length=16000,                            # Segment length
-    batch_size=8,                                # Batch size
+    batch_size=1,                                # Batch size
     num_workers=4                                # Number of workers for DataLoader
 )
+logger.info('Data loader initialized')
 
 train_loader = data_loader.get_loader(split="train")
 valid_loader = data_loader.get_loader(split="valid")
@@ -25,9 +29,11 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = build_conv_tasnet(causal=False, num_sources=2).to(device)
 criterion = SISNRLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+logger.info('Model, loss and optimizer initialized')
 
 # Training loop
-num_epochs = 4
+num_epochs = 20
+logger.info(f'Starting training loop with {num_epochs} epochs')
 for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
@@ -42,7 +48,7 @@ for epoch in range(num_epochs):
 
         # Compute loss
         loss = criterion(clean_waveform, estimated_waveform)
-
+        print(f"Loss: {loss}")
         # Backward pass and optimization
         optimizer.zero_grad()
         loss.backward()
@@ -70,4 +76,5 @@ for epoch in range(num_epochs):
 
     avg_val_loss = val_loss / len(valid_loader)
 
+    logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}")
     print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}")
