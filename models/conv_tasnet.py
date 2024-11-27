@@ -25,9 +25,10 @@ class ConvBlock(torch.nn.Module):
         dilation (int, optional): Dilation value for convolution.
         no_residual (bool, optional): Disable residual output.
     """
-    def __init__(self, io_channels: int, hidden_channels: int, kernel_size: int,
-                 padding: int, dilation: int = 1, no_residual: bool = False):
+    def __init__(self, io_channels: int, hidden_channels: int, kernel_size: int, 
+                 dilation: int = 1, no_residual: bool = False):
         super().__init__()
+        self.no_residual = no_residual
         self.conv_layers = torch.nn.Sequential(
             torch.nn.Conv1d(io_channels, hidden_channels, kernel_size=1),
             torch.nn.PReLU(),
@@ -36,7 +37,7 @@ class ConvBlock(torch.nn.Module):
                 hidden_channels,
                 hidden_channels,
                 kernel_size=kernel_size,
-                padding=padding,
+                padding= (dilation * (kernel_size - 1) // 2),
                 dilation=dilation,
                 groups=hidden_channels,
             ),
@@ -50,7 +51,7 @@ class ConvBlock(torch.nn.Module):
 
     def forward(self, input: torch.Tensor) -> Tuple[Optional[torch.Tensor], torch.Tensor]:
         feature = self.conv_layers(input)
-        residual = self.res_out(feature) if self.res_out else None
+        residual = self.res_out(feature) if not self.no_residual else None
         skip_out = self.skip_out(feature)
         return residual, skip_out
 
