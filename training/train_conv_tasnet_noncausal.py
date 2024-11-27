@@ -10,11 +10,19 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import torch
 from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 from training.losses.si_snr import SISNRLoss     # SI-SNR loss function
-from data.dataloader import EARSWHAMDataLoader  # Your custom dataloader class
+from data.dataloader import EARSWHAMDataLoader  
 import logging
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
+# Define directories for saving models and training stats
+model_dir = "/dtu/blackhole/01/212376/causal-speech-enhancement/models/saved-models/"
+stats_dir = "/dtu/blackhole/01/212376/causal-speech-enhancement/experiments/"
+
+# Create directories if they don't exist
+os.makedirs(model_dir, exist_ok=True)
+os.makedirs(stats_dir, exist_ok=True)
 
 # Initialize data loaders
 data_loader = EARSWHAMDataLoader(
@@ -37,6 +45,8 @@ logger.info('Model, loss and optimizer initialized')
 
 # Training loop
 num_epochs = 20
+checkpoint_interval = 5  # Save model every N epochs
+best_val_loss = float('inf')  # Initialize best validation loss
 train_losses = []  # Store training losses
 val_losses = []    # Store validation losses
 
@@ -50,7 +60,6 @@ for epoch in range(num_epochs):
     # Training with progress bar
     train_loader_tqdm = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs} [Train]", unit="batch")
     for batch_idx, (clean_waveform, noisy_waveform) in enumerate(train_loader_tqdm):
-        # Move data to the GPU if available
         clean_waveform = clean_waveform.to(device)
         noisy_waveform = noisy_waveform.to(device)
 
@@ -98,7 +107,33 @@ for epoch in range(num_epochs):
     logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Time: {elapsed_time:.2f}s")
     print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Time: {elapsed_time:.2f}s")
 
-# Save training curve
+    # Save model every N epochs
+    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_noncausal_epoch_{epoch + 1}.pth")
+    if (epoch + 1) % checkpoint_interval == 0:
+        torch.save({
+            'epoch': epoch + 1,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'train_losses': train_losses,
+            'val_losses': val_losses
+        }, checkpoint_path)
+        logger.info(f"Checkpoint saved at {checkpoint_path}")
+
+    # Save model if validation loss improves
+    best_model_path = os.path.join(model_dir, "conv_tasnet_noncausal_best_model.pth")
+    if avg_val_loss < best_val_loss:
+        best_val_loss = avg_val_loss
+        torch.save({
+            'epoch': epoch + 1,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'train_losses': train_losses,
+            'val_losses': val_losses
+        }, best_model_path)
+        logger.info(f"Best model saved at {best_model_path} with validation loss {best_val_loss:.4f}")
+
+# Save final training curve
+training_curve_path = os.path.join(stats_dir, "conv_tasnet_noncausal_training_curve.png")
 plt.figure(figsize=(10, 6))
 plt.plot(range(1, num_epochs + 1), train_losses, label="Train Loss")
 plt.plot(range(1, num_epochs + 1), val_losses, label="Validation Loss")
@@ -107,5 +142,5 @@ plt.ylabel("Loss")
 plt.title("Training and Validation Loss Curve")
 plt.legend()
 plt.grid(True)
-plt.savefig("training_curve.png")
-logger.info("Training curve saved as 'training_curve.png'.")
+plt.savefig(training_curve_path)
+logger.info(f"Training curve saved as '{training_curve_path}'.")
