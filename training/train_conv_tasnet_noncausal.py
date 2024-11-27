@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 model_dir = "/dtu/blackhole/01/212376/causal-speech-enhancement/models/saved-models/"
 stats_dir = "/dtu/blackhole/01/212376/causal-speech-enhancement/experiments/"
 
-# Create directories if they don't exist
-os.makedirs(model_dir, exist_ok=True)
-os.makedirs(stats_dir, exist_ok=True)
+# # Create directories if they don't exist
+# os.makedirs(model_dir, exist_ok=True)
+# os.makedirs(stats_dir, exist_ok=True)
 
 # Initialize data loaders
 data_loader = EARSWHAMDataLoader(
