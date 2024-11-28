@@ -21,4 +21,4 @@
 
 # your training script here, e.g.
 # activate environment ...
-python /dtu/blackhole/18/212376/causal-speech-enhancement/training/train_conv_tasnet_noncausal.py 
+python /dtu/blackhole/18/212376/causal-speech-enhancement/training/train_conv_tasnet_noncausal.py > /dtu/blackhole/18/212376/causal-speech-enhancement/training/train_conv_tasnet_noncausal_output.log
