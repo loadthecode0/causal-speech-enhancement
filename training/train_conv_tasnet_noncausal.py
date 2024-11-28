@@ -17,8 +17,8 @@ logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %
 logger = logging.getLogger(__name__)
 
 # Define directories for saving models and training stats
-model_dir = "/dtu/blackhole/01/212376/causal-speech-enhancement/models/saved-models/"
-stats_dir = "/dtu/blackhole/01/212376/causal-speech-enhancement/experiments/"
+model_dir = "/dtu/blackhole/18/212376/causal-speech-enhancement/models/saved-models/"
+stats_dir = "/dtu/blackhole/18/212376/causal-speech-enhancement/experiments/"
 
 # # Create directories if they don't exist
 # os.makedirs(model_dir, exist_ok=True)
