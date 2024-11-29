@@ -79,7 +79,7 @@ class CausalConvBlock(torch.nn.Module):
                 hidden_channels,
                 hidden_channels,
                 kernel_size=kernel_size,
-                padding= (dilation * (kernel_size - 1) // 2),
+                padding=self.padding,
                 dilation=dilation,
                 groups=hidden_channels,
             ),
