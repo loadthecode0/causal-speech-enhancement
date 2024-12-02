@@ -157,6 +157,7 @@ for epoch in range(num_epochs):
                 avg_mos = sum(mos_scores) / len(mos_scores) if mos_scores else 0
             )
 
+    avg_mos = sum(mos_scores) / len(mos_scores)
     avg_val_loss = val_loss / len(valid_loader)
     val_losses.append(avg_val_loss)
 
