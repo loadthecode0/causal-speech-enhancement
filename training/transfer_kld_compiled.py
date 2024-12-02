@@ -3,6 +3,10 @@ import os
 import time
 from tqdm import tqdm  # For progress bar
 import matplotlib.pyplot as plt  # For plotting training curves
+import torchaudio
+import torch
+from squim import SQUIM_SUBJECTIVE
+import logging
 
 # Add the root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -121,9 +125,14 @@ for epoch in range(num_epochs):
     avg_train_loss = running_loss / len(train_loader)
     train_losses.append(avg_train_loss)
 
+
+
     # Validation loop
+    # load pre-trained subjective MOS model
+    subjective_model = SQUIM_SUBJECTIVE.get_model()
     student.eval()
     val_loss = 0.0
+    mos_scores = []
     valid_loader_tqdm = tqdm(valid_loader, desc=f"Epoch {epoch + 1}/{num_epochs} [Valid]", unit="batch")
     with torch.no_grad():
         for clean_waveform, noisy_waveform in valid_loader_tqdm:
@@ -138,8 +147,22 @@ for epoch in range(num_epochs):
             val_loss += loss.item()
             valid_loader_tqdm.set_postfix(loss=loss, avg_loss=val_loss / (len(valid_loader_tqdm) + 1))
 
+            # MOS prediction
+            mos = subjective_model(student_output[0:1, :], clean_waveform)
+            mos_scores.append(mos.item())
+
+            valid_loader_tqdm.set_postfix(
+                loss=loss.item(),
+                avg_loss = val_loss / (len(valid_loader_tqdm)+1),
+                avg_mos = sum(mos_scores) / len(mos_scores) if mos_scores else 0
+            )
+
     avg_val_loss = val_loss / len(valid_loader)
     val_losses.append(avg_val_loss)
+
+
+    # Log MOS score
+    logger.info(f"Epoch {epoch + 1}/{num_epochs}, Avg MOS: {avg_mos:.4f}")
 
     # Logging and ETA
     elapsed_time = time.time() - start_time
