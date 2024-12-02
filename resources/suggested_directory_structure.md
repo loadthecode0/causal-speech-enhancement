@@ -170,5 +170,3 @@ speech_separation_project/
    - Include a `README.md` and comments in scripts for clarity.
 
 ---
-
-This directory structure ensures scalability, reproducibility, and ease of collaboration across team members. Let me know if you need help creating specific scripts or files!
