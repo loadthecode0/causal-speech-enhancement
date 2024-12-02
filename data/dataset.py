@@ -16,23 +16,12 @@ class EARSWHAMAudioDataset(Dataset):
         self.transform = transform
         self.seg_length = seg_length
 
-        # Set directories for clean and noisy files based on the dataset split
-        self.clean_dir = os.path.join(base_dir, dataset, "clean")
-        self.noisy_dir = os.path.join(base_dir, dataset, "noisy")
-        print(self.clean_dir, self.noisy_dir)
-        # Gather and sort file names to ensure pairing
-        self.clean_files = sorted(glob.glob(os.path.join(self.clean_dir, "**/*.wav"), recursive=True))
-        self.noisy_files = sorted(glob.glob(    os.path.join(self.noisy_dir, "**/*.wav"), recursive=True))
-        print(self.clean_files, self.noisy_files)
-
          # Set directories for clean and noisy files based on the dataset split
         self.clean_dir = os.path.join(base_dir, dataset, "clean")
         self.noisy_dir = os.path.join(base_dir, dataset, "noisy")
-        print(self.clean_dir, self.noisy_dir)
         # Gather and sort file names to ensure pairing
         self.clean_files = sorted(glob.glob(os.path.join(self.clean_dir, "**/*.wav"), recursive=True))
         self.noisy_files = sorted(glob.glob(os.path.join(self.noisy_dir, "**/*.wav"), recursive=True))
-        print("listed clean and noisy paths")
 
         # Ensure clean and noisy file lists match
         assert len(self.clean_files) == len(self.noisy_files), \
@@ -51,8 +40,8 @@ class EARSWHAMAudioDataset(Dataset):
         #We find a random starting point for the segment
         if audio_length > self.seg_length:
             start = torch.randint(0, audio_length - self.seg_length, (1, )).item()
-            clean_waveform = clean_waveform[:, start: start + self.segment_length]
-            noisy_waveform = noisy_waveform[:, start:start + self.segment_length]
+            clean_waveform = clean_waveform[:, start: start + self.seg_length]
+            noisy_waveform = noisy_waveform[:, start:start + self.seg_length]
         else:
             pad_length = self.seg_length - audio_length
             clean_waveform = torch.nn.functional.pad(clean_waveform, (0, pad_length))
