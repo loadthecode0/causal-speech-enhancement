@@ -169,7 +169,7 @@ for epoch in range(num_epochs):
     logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Time: {elapsed_time:.2f}s")
 
     # Save model every N epochs
-    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_kld_compiled_epoch_{epoch + 1}.pth")
+    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_kld_MOS_compiled_epoch_{epoch + 1}.pth")
     if (epoch + 1) % checkpoint_interval == 0:
         torch.save({
             'epoch': epoch + 1,
