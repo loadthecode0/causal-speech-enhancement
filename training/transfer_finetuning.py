@@ -56,7 +56,7 @@ criterion = SISNRLoss()
 optimizer = torch.optim.Adam(student.parameters(), lr=1e-4)  # Lower learning rate for fine-tuning
 
 # Training parameters
-num_epochs = 25
+num_epochs = 10
 checkpoint_interval = 5
 best_val_loss = float('inf')
 train_losses = []
