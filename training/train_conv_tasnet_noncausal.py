@@ -1,9 +1,5 @@
 import sys
 import os
-import time
-from tqdm import tqdm  # For progress bar
-import matplotlib.pyplot as plt  # For plotting training curves
-
 # Add the root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -12,6 +8,9 @@ from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 from training.losses.si_snr import SISNRLoss     # SI-SNR loss function
 from data.dataloader import EARSWHAMDataLoader  
 import logging
+import time
+from tqdm import tqdm  # For progress bar
+import matplotlib.pyplot as plt  # For plotting training curves
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -28,7 +27,7 @@ stats_dir = "/dtu/blackhole/18/212376/causal-speech-enhancement/experiments/"
 data_loader = EARSWHAMDataLoader(
     base_dir="/dtu/blackhole/01/212577/datasets_final/EARS-WHAM16kHz",  # Path to the resampled dataset
     seg_length=16000,                            # Segment length
-    batch_size=1,                                # Batch size
+    batch_size=8,                                # Batch size
     num_workers=4                                # Number of workers for DataLoader
 )
 logger.info('Data loader initialized')
@@ -49,7 +48,6 @@ checkpoint_interval = 5  # Save model every N epochs
 best_val_loss = float('inf')  # Initialize best validation loss
 train_losses = []  # Store training losses
 val_losses = []    # Store validation losses
-
 logger.info(f'Starting training loop with {num_epochs} epochs')
 
 for epoch in range(num_epochs):
@@ -60,6 +58,7 @@ for epoch in range(num_epochs):
     # Training with progress bar
     train_loader_tqdm = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs} [Train]", unit="batch")
     for batch_idx, (clean_waveform, noisy_waveform) in enumerate(train_loader_tqdm):
+
         clean_waveform = clean_waveform.to(device)
         noisy_waveform = noisy_waveform.to(device)
 
@@ -99,6 +98,7 @@ for epoch in range(num_epochs):
             valid_loader_tqdm.set_postfix(loss=loss.item(), avg_loss=val_loss / (len(valid_loader_tqdm) + 1))
 
     avg_val_loss = val_loss / len(valid_loader)
+
     val_losses.append(avg_val_loss)
 
     # Logging and ETA

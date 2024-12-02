@@ -1,17 +1,16 @@
 import sys
 import os
-import time
-from tqdm import tqdm  # For progress bar
-import matplotlib.pyplot as plt  # For plotting training curves
-
 # Add the root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+import time
+from tqdm import tqdm  # For progress bar
+import matplotlib.pyplot as plt  # For plotting training curves
 import torch
 from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 from training.losses.si_snr import SISNRLoss     # SI-SNR loss function
-from data.dataloader import EARSWHAMDataLoader  
-import logging
+from data.dataloader import EARSWHAMDataLoader  # Your custom dataloader class
+import logging 
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -19,10 +18,6 @@ logger = logging.getLogger(__name__)
 # Define directories for saving models and training stats
 model_dir = "/dtu/blackhole/18/212376/causal-speech-enhancement/models/saved-models/"
 stats_dir = "/dtu/blackhole/18/212376/causal-speech-enhancement/experiments/"
-
-# # Create directories if they don't exist
-# os.makedirs(model_dir, exist_ok=True)
-# os.makedirs(stats_dir, exist_ok=True)
 
 # Initialize data loaders
 data_loader = EARSWHAMDataLoader(
@@ -99,6 +94,7 @@ for epoch in range(num_epochs):
             valid_loader_tqdm.set_postfix(loss=loss.item(), avg_loss=val_loss / (len(valid_loader_tqdm) + 1))
 
     avg_val_loss = val_loss / len(valid_loader)
+
     val_losses.append(avg_val_loss)
 
     # Logging and ETA
