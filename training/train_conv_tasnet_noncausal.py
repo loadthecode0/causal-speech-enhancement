@@ -7,6 +7,7 @@ import torch
 from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 from training.losses.si_snr import SISNRLoss     # SI-SNR loss function
 from data.dataloader import EARSWHAMDataLoader  
+from training.initialization.spectral_init import apply_spectral_initialization
 import logging
 import time
 from tqdm import tqdm  # For progress bar
@@ -38,6 +39,7 @@ valid_loader = data_loader.get_loader(split="valid")
 # Initialize model, loss, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = build_conv_tasnet(causal=False, num_sources=2).to(device)
+apply_spectral_initialization(model, gain=1.0)
 criterion = SISNRLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 logger.info('Model, loss and optimizer initialized')
