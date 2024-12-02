@@ -78,4 +78,3 @@ for epoch in range(num_epochs):
     avg_val_loss = val_loss / len(valid_loader)
 
     logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}")
-    
