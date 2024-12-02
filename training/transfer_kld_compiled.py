@@ -1,12 +1,11 @@
 import sys
 import os
-import time
-from tqdm import tqdm  # For progress bar
-import matplotlib.pyplot as plt  # For plotting training curves
-
 # Add the root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+import time
+from tqdm import tqdm  # For progress bar
+import matplotlib.pyplot as plt  # For plotting training curves
 import torch
 from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 from training.losses.si_snr import SISNRLoss  # SI-SNR loss function
@@ -17,8 +16,8 @@ logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %
 logger = logging.getLogger(__name__)
 
 # Directories for saving models and stats
-model_dir = "/dtu/blackhole/18/212376/causal-speech-enhancement/models/saved-models/"
-stats_dir = "/dtu/blackhole/18/212376/causal-speech-enhancement/experiments/"
+model_dir = "/dtu/blackhole/01/212577/causal-speech-enhancement/models/saved-models/"
+stats_dir = "/dtu/blackhole/01/212577/causal-speech-enhancement/experiments/"
 
 # Initialize data loaders
 data_loader = EARSWHAMDataLoader(
@@ -47,9 +46,6 @@ logger.info("Teacher model compiled with torch.compile")
 
 # Load pre-trained student model (causal)
 student = build_conv_tasnet(causal=True, num_sources=2).to(device)
-student_checkpoint = model_dir + "conv_tasnet_causal_best_model.pth"
-student.load_state_dict(torch.load(student_checkpoint, map_location=device)["model_state_dict"])
-logger.info("Pre-trained student model loaded")
 
 # Compile the student model for optimization
 student = torch.compile(student, backend="inductor")
@@ -108,6 +104,8 @@ for epoch in range(num_epochs):
     # Training with progress bar
     train_loader_tqdm = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs} [Train]", unit="batch")
     for batch_idx, (clean_waveform, noisy_waveform) in enumerate(train_loader_tqdm):
+        if batch_idx == 20:
+            break
         clean_waveform = clean_waveform.to(device)
         noisy_waveform = noisy_waveform.to(device)
 
@@ -146,7 +144,7 @@ for epoch in range(num_epochs):
     logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Time: {elapsed_time:.2f}s")
 
     # Save model every N epochs
-    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_kld_compiled_epoch_{epoch + 1}.pth")
+    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_untrained_transfer_kld_compiled_epoch_{epoch + 1}.pth")
     if (epoch + 1) % checkpoint_interval == 0:
         torch.save({
             'epoch': epoch + 1,
@@ -158,7 +156,7 @@ for epoch in range(num_epochs):
         logger.info(f"Checkpoint saved at {checkpoint_path}")
 
     # Save best model
-    best_model_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_kld_compiled_best_model.pth")
+    best_model_path = os.path.join(model_dir, f"conv_tasnet_causal_untrained_transfer_kld_compiled_best.pth")
     if avg_val_loss < best_val_loss:
         best_val_loss = avg_val_loss
         torch.save({
@@ -171,7 +169,7 @@ for epoch in range(num_epochs):
         logger.info(f"Best model saved at {best_model_path} with validation loss {best_val_loss:.4f}")
 
 # Save final training curve
-training_curve_path = os.path.join(stats_dir, "conv_tasnet_causal_transfer_kld_compiled_training_curve.png")
+training_curve_path = os.path.join(stats_dir, "conv_tasnet_causal_untrained_transfer_kld_compiled_training_curve.png")
 plt.figure(figsize=(10, 6))
 plt.plot(range(1, num_epochs + 1), train_losses, label="Train Loss")
 plt.plot(range(1, num_epochs + 1), val_losses, label="Validation Loss")
