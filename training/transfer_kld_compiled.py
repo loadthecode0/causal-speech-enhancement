@@ -94,7 +94,7 @@ def train_step(student, teacher, noisy_waveform, clean_waveform, criterion_task,
     loss.backward()
     optimizer.step()
 
-    return loss.item()
+    return loss
 
 # Compile the train step
 train_step_compiled = torch.compile(train_step)
@@ -112,7 +112,7 @@ for epoch in range(num_epochs):
         noisy_waveform = noisy_waveform.to(device)
 
         # Perform a single training step
-        loss = train_step_compiled(student, teacher, noisy_waveform, clean_waveform, criterion_task, criterion_distill, optimizer, temperature, alpha)
+        loss = train_step_compiled(student, teacher, noisy_waveform, clean_waveform, criterion_task, criterion_distill, optimizer, temperature, alpha).item()
 
         # Accumulate loss
         running_loss += loss
