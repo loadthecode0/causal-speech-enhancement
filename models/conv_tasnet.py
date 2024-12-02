@@ -150,20 +150,22 @@ class MaskGenerator(torch.nn.Module):
         self.mask_activate = torch.nn.Sigmoid() if msk_activate == "sigmoid" else torch.nn.ReLU()
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        batch_size = input.shape[0]
+        block_features = [] 
         feats = self.input_norm(input)
         feats = self.input_conv(feats)
+
         output = 0.0
         for layer in self.conv_layers:
             residual, skip = layer(feats)
             if residual is not None:
                 feats = feats + residual
             output = output + skip
+            block_features.append(feats) 
+
         output = self.output_prelu(output)
         output = self.output_conv(output)
         output = self.mask_activate(output)
-        return output.view(batch_size, self.num_sources, self.input_dim, -1)
-
+        return output, block_features
 
 class ConvTasNet(torch.nn.Module):
     """Conv-TasNet implementation for both causal and non-causal settings.
@@ -199,11 +201,20 @@ class ConvTasNet(torch.nn.Module):
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
+        features = []
+
         padded, num_pads = self._align_num_frames_with_strides(input)
         feats = self.encoder(padded)
-        masked = self.mask_generator(feats) * feats.unsqueeze(1)
+        features.append(feats) 
+        masks, mask_features = self.mask_generator(feats)
+        features.extend(mask_features) 
+        masked = masks * feats.unsqueeze(1)
+        
+        features.append(masked)
         output = self.decoder(masked.view(-1, feats.size(1), feats.size(2)))
-        return output.view(input.size(0), -1, input.size(2))
+        output = output.view(input.size(0), -1, input.size(2))
+
+        return output, features
 
     def _align_num_frames_with_strides(self, input: torch.Tensor) -> Tuple[torch.Tensor, int]:
         num_frames = input.size(-1)
