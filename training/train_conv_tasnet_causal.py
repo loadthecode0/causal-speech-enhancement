@@ -106,7 +106,7 @@ for epoch in range(num_epochs):
     print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Time: {elapsed_time:.2f}s")
 
     # Save model every N epochs
-    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_epoch_{epoch + 1}.pth")
+    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_spec_epoch_{epoch + 1}.pth")
     if (epoch + 1) % checkpoint_interval == 0:
         torch.save({
             'epoch': epoch + 1,
@@ -118,7 +118,7 @@ for epoch in range(num_epochs):
         logger.info(f"Checkpoint saved at {checkpoint_path}")
 
     # Save model if validation loss improves
-    best_model_path = os.path.join(model_dir, "conv_tasnet_causal_best_model.pth")
+    best_model_path = os.path.join(model_dir, "conv_tasnet_causal_spec_best_model.pth")
     if avg_val_loss < best_val_loss:
         best_val_loss = avg_val_loss
         torch.save({
@@ -131,7 +131,7 @@ for epoch in range(num_epochs):
         logger.info(f"Best model saved at {best_model_path} with validation loss {best_val_loss:.4f}")
 
 # Save final training curve
-training_curve_path = os.path.join(stats_dir, "conv_tasnet_causal_training_curve.png")
+training_curve_path = os.path.join(stats_dir, "conv_tasnet_causal_spec_training_curve.png")
 plt.figure(figsize=(10, 6))
 plt.plot(range(1, num_epochs + 1), train_losses, label="Train Loss")
 plt.plot(range(1, num_epochs + 1), val_losses, label="Validation Loss")
