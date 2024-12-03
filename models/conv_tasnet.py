@@ -213,7 +213,7 @@ class ConvTasNet(torch.nn.Module):
         super().__init__()
         self.encoder = CausalConv1D(
             1, enc_num_feats, kernel_size=enc_kernel_size,
-            bias=False,
+            dilation=1, groups=1
         )
         self.mask_generator = MaskGenerator(
             input_dim=enc_num_feats,
