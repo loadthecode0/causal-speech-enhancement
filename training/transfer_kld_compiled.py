@@ -5,7 +5,6 @@ from tqdm import tqdm  # For progress bar
 import matplotlib.pyplot as plt  # For plotting training curves
 import torchaudio
 import torch
-from squim import SQUIM_SUBJECTIVE
 import logging
 
 # Add the root directory to sys.path
