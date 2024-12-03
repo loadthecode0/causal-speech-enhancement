@@ -147,12 +147,6 @@ class CausalConvBlock(torch.nn.Module):
 
 
 class MaskGenerator(torch.nn.Module):
-    """TCN-based Mask Generator for both causal and non-causal versions.
-
-    Args:
-        causal (bool): Use causal convolutions if True, otherwise non-causal.
-        Other arguments match the original Conv-TasNet implementation.
-    """
     def __init__(self, input_dim: int, num_sources: int, kernel_size: int,
                  num_feats: int, num_hidden: int, num_layers: int, num_stacks: int,
                  msk_activate: str, causal: bool = False):
@@ -160,14 +154,13 @@ class MaskGenerator(torch.nn.Module):
         self.input_dim = input_dim
         self.num_sources = num_sources
         self.input_norm = torch.nn.GroupNorm(1, input_dim, eps=1e-8)
-        self.input_conv = torch.nn.Conv1d(input_dim, num_feats, kernel_size=1)
-
+        self.input_conv = torch.nn.Conv1d(input_dim, num_feats, kernel_size=1, bias=False)  # Disable bias
         self.receptive_field = 0
         self.conv_layers = torch.nn.ModuleList([])
         ConvBlockType = CausalConvBlock if causal else ConvBlock
         for s in range(num_stacks):
             for l in range(num_layers):
-                dilation = 2**l
+                dilation = 2 ** l
                 self.conv_layers.append(
                     ConvBlockType(
                         io_channels=num_feats,
@@ -179,7 +172,7 @@ class MaskGenerator(torch.nn.Module):
                 )
                 self.receptive_field += kernel_size if s == 0 and l == 0 else (kernel_size - 1) * dilation
         self.output_prelu = torch.nn.PReLU()
-        self.output_conv = torch.nn.Conv1d(num_feats, input_dim * num_sources, kernel_size=1)
+        self.output_conv = torch.nn.Conv1d(num_feats, input_dim * num_sources, kernel_size=1, bias=False)  # Disable bias
         self.mask_activate = torch.nn.Sigmoid() if msk_activate == "sigmoid" else torch.nn.ReLU()
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
