@@ -35,11 +35,28 @@ logger.info('Data loader initialized')
 train_loader = data_loader.get_loader(split="train")
 valid_loader = data_loader.get_loader(split="valid")
 
+def remap_keys(state_dict):
+    new_state_dict = {}
+    for key, value in state_dict.items():
+        if key.startswith("encoder.weight"):
+            new_key = key.replace("encoder.weight", "encoder.conv.weight")
+        elif key.startswith("decoder.weight"):
+            new_key = key.replace("decoder.weight", "decoder.conv_transpose.weight")
+        elif key.startswith("encoder.bias"):
+            new_key = key.replace("encoder.bias", "encoder.conv.bias")
+        elif key.startswith("decoder.bias"):
+            new_key = key.replace("decoder.bias", "decoder.conv_transpose.bias")
+        else:
+            new_key = key  # Keep other keys unchanged
+        new_state_dict[new_key] = value
+    return new_state_dict
+    
 # Load pre-trained teacher model (non-causal) and freeze its weights
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 teacher = build_conv_tasnet(causal=False, num_sources=2).to(device)
 teacher_checkpoint = model_dir + "conv_tasnet_noncausal_best_model.pth"
-teacher.load_state_dict(torch.load(teacher_checkpoint, map_location=device)["model_state_dict"])
+teacher_state_dict = torch.load(teacher_checkpoint, map_location=device)["model_state_dict"]
+teacher.load_state_dict(remap_keys(teacher_state_dict))
 teacher.eval()  # Teacher remains in evaluation mode
 for param in teacher.parameters():
     param.requires_grad = False
@@ -51,7 +68,8 @@ logger.info("Teacher model compiled with torch.compile")
 # Load pre-trained student model (causal)
 student = build_conv_tasnet(causal=True, num_sources=2).to(device)
 student_checkpoint = model_dir + "conv_tasnet_causal_best_model.pth"
-student.load_state_dict(torch.load(student_checkpoint, map_location=device)["model_state_dict"])
+student_state_dict = torch.load(student_checkpoint, map_location=device)["model_state_dict"]
+student.load_state_dict(remap_keys(student_state_dict))
 logger.info("Pre-trained student model loaded")
 
 # Compile the student model for optimization
