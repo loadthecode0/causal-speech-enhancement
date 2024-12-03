@@ -211,7 +211,7 @@ class ConvTasNet(torch.nn.Module):
                  msk_num_layers: int = 8, msk_num_stacks: int = 3,
                  msk_activate: str = "sigmoid", causal: bool = False):
         super().__init__()
-        self.encoder = torch.nn.CausalConv1d(
+        self.encoder = torch.nn.CausalConv1D(
             1, enc_num_feats, kernel_size=enc_kernel_size,
             stride=enc_kernel_size // 2, bias=False,
         )
