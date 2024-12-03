@@ -59,7 +59,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 teacher = build_conv_tasnet(causal=False, num_sources=2).to(device)
 teacher_checkpoint = model_dir + "conv_tasnet_noncausal_best_model.pth"
 teacher_state_dict = torch.load(teacher_checkpoint, map_location=device)["model_state_dict"]
-teacher.load_state_dict(remap_keys(teacher_state_dict))
+teacher.load_state_dict(teacher_state_dict)
 teacher.eval()  # Teacher remains in evaluation mode
 for param in teacher.parameters():
     param.requires_grad = False
