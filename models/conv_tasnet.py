@@ -37,8 +37,6 @@ class CausalConvTranspose1D(nn.Module):
             stride=stride,
             output_padding=output_padding,
         )
-        # Compute the required causal padding
-        self.left_padding = (kernel_size - 1) - padding
 
     def forward(self, x):
         # Apply causal padding to ensure no future access
