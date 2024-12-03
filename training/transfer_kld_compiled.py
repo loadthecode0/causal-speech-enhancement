@@ -38,6 +38,9 @@ valid_loader = data_loader.get_loader(split="valid")
 def remap_keys(state_dict):
     new_state_dict = {}
     for key, value in state_dict.items():
+        # Remove unexpected biases
+        if "conv.bias" in key:
+            continue
         if key.startswith("encoder.weight"):
             new_key = key.replace("encoder.weight", "encoder.conv.weight")
         elif key.startswith("decoder.weight"):
@@ -70,7 +73,7 @@ student = build_conv_tasnet(causal=True, num_sources=2).to(device)
 student_checkpoint = model_dir + "conv_tasnet_causal_best_model.pth"
 student_state_dict = torch.load(student_checkpoint, map_location=device)["model_state_dict"]
 student.load_state_dict(remap_keys(student_state_dict))
-logger.info("Pre-trained student model loaded")
+logger.info("Pre-trained student model loaded with filtered keys")
 
 # Compile the student model for optimization
 student = torch.compile(student, backend="inductor")
