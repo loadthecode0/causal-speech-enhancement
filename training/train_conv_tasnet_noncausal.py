@@ -12,6 +12,7 @@ import logging
 import time
 from tqdm import tqdm  # For progress bar
 import matplotlib.pyplot as plt  # For plotting training curves
+import numpy as np
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ valid_loader = data_loader.get_loader(split="valid")
 # Initialize model, loss, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = build_conv_tasnet(causal=False, num_sources=2).to(device)
-apply_spectral_initialization(model, gain=1.0)
+apply_spectral_initialization(model, gain=np.sqrt(2))
 criterion = SISNRLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 logger.info('Model, loss and optimizer initialized')

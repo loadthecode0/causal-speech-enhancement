@@ -23,6 +23,7 @@ class CausalConv1D(nn.Module):
             kernel_size,
             dilation=dilation,
             groups=groups,
+            bias = False
         )
 
     def forward(self, x):
@@ -47,7 +48,7 @@ class ConvBlock(torch.nn.Module):
         super().__init__()
         self.no_residual = no_residual
         self.conv_layers = torch.nn.Sequential(
-            torch.nn.Conv1d(io_channels, hidden_channels, kernel_size=1),
+            torch.nn.Conv1d(io_channels, hidden_channels, kernel_size=1, bias=False),
             torch.nn.PReLU(),
             torch.nn.GroupNorm(1, hidden_channels, eps=1e-8),
             torch.nn.Conv1d(
@@ -57,14 +58,15 @@ class ConvBlock(torch.nn.Module):
                 padding= (dilation * (kernel_size - 1) // 2),
                 dilation=dilation,
                 groups=hidden_channels,
+                bias = False
             ),
             torch.nn.PReLU(),
             torch.nn.GroupNorm(1, hidden_channels, eps=1e-8),
         )
         self.res_out = (
-            None if no_residual else torch.nn.Conv1d(hidden_channels, io_channels, kernel_size=1)
+            None if no_residual else torch.nn.Conv1d(hidden_channels, io_channels, kernel_size=1, bias = False)
         )
-        self.skip_out = torch.nn.Conv1d(hidden_channels, io_channels, kernel_size=1)
+        self.skip_out = torch.nn.Conv1d(hidden_channels, io_channels, kernel_size=1, bias = False)
 
     def forward(self, input: torch.Tensor) -> Tuple[Optional[torch.Tensor], torch.Tensor]:
         feature = self.conv_layers(input)
@@ -90,7 +92,7 @@ class CausalConvBlock(torch.nn.Module):
         super().__init__()
         self.left_padding = (kernel_size - 1) * dilation
         self.conv_layers = torch.nn.Sequential(
-            torch.nn.Conv1d(io_channels, hidden_channels, kernel_size=1),
+            torch.nn.Conv1d(io_channels, hidden_channels, kernel_size=1, bias = False),
             torch.nn.PReLU(),
             CausalConv1D(
                 hidden_channels,
@@ -102,9 +104,9 @@ class CausalConvBlock(torch.nn.Module):
             torch.nn.PReLU(),
         )
         self.res_out = (
-            None if no_residual else torch.nn.Conv1d(hidden_channels, io_channels, kernel_size=1)
+            None if no_residual else torch.nn.Conv1d(hidden_channels, io_channels, kernel_size=1, bias = False)
         )
-        self.skip_out = torch.nn.Conv1d(hidden_channels, io_channels, kernel_size=1)
+        self.skip_out = torch.nn.Conv1d(hidden_channels, io_channels, kernel_size=1, bias = False)
 
     def forward(self, input: torch.Tensor) -> Tuple[Optional[torch.Tensor], torch.Tensor]:
         feature = self.conv_layers(input)
@@ -146,7 +148,7 @@ class MaskGenerator(torch.nn.Module):
                 )
                 self.receptive_field += kernel_size if s == 0 and l == 0 else (kernel_size - 1) * dilation
         self.output_prelu = torch.nn.PReLU()
-        self.output_conv = torch.nn.Conv1d(num_feats, input_dim * num_sources, kernel_size=1)
+        self.output_conv = torch.nn.Conv1d(num_feats, input_dim * num_sources, kernel_size=1, bias = False)
         self.mask_activate = torch.nn.Sigmoid() if msk_activate == "sigmoid" else torch.nn.ReLU()
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
