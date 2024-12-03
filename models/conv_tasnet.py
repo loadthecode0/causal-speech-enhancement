@@ -29,7 +29,6 @@ class CausalConvTranspose1D(nn.Module):
         super(CausalConvTranspose1D, self).__init__()
         self.kernel_size = kernel_size
         self.stride = stride
-        self.padding = padding
         self.output_padding = output_padding
         self.conv_transpose = nn.ConvTranspose1d(
             in_channels,
