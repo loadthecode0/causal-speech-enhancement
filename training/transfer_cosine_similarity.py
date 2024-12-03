@@ -9,7 +9,6 @@ from tqdm import tqdm  # For progress bar
 import matplotlib.pyplot as plt  # For plotting training curves
 import torchaudio
 import torch
-from squim import SQUIM_SUBJECTIVE
 import logging
 from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 from training.losses.si_snr import SISNRLoss  # SI-SNR loss function
@@ -116,6 +115,8 @@ for epoch in range(num_epochs):
     # Training with progress bar
     train_loader_tqdm = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs} [Train]", unit="batch")
     for batch_idx, (clean_waveform, noisy_waveform) in enumerate(train_loader_tqdm):
+        if batch_idx == 20:
+            break
         clean_waveform = clean_waveform.to(device)
         noisy_waveform = noisy_waveform.to(device)
 
@@ -132,14 +133,13 @@ for epoch in range(num_epochs):
 
 
     # Validation loop
-    # load pre-trained subjective MOS model
-    subjective_model = SQUIM_SUBJECTIVE.get_model()
     student.eval()
     val_loss = 0.0
     mos_scores = []
     valid_loader_tqdm = tqdm(valid_loader, desc=f"Epoch {epoch + 1}/{num_epochs} [Valid]", unit="batch")
     with torch.no_grad():
         for clean_waveform, noisy_waveform in valid_loader_tqdm:
+            
             clean_waveform = clean_waveform.to(device)
             noisy_waveform = noisy_waveform.to(device)
 
@@ -147,13 +147,10 @@ for epoch in range(num_epochs):
             student_output = student(noisy_waveform)
 
             # Validation loss
-            loss = criterion_task(clean_waveform, student_output)
+            loss = criterion_task(clean_waveform, student_output[0])
             val_loss += loss.item()
             valid_loader_tqdm.set_postfix(loss=loss, avg_loss=val_loss / (len(valid_loader_tqdm) + 1))
 
-            # MOS prediction
-            mos = subjective_model(student_output[0:1, :], clean_waveform)
-            mos_scores.append(mos.item())
 
             valid_loader_tqdm.set_postfix(
                 loss=loss.item(),

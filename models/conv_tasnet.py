@@ -151,6 +151,8 @@ class MaskGenerator(torch.nn.Module):
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         block_features = [] 
+        
+        batch_size = input.shape[0]
         feats = self.input_norm(input)
         feats = self.input_conv(feats)
 
@@ -165,7 +167,7 @@ class MaskGenerator(torch.nn.Module):
         output = self.output_prelu(output)
         output = self.output_conv(output)
         output = self.mask_activate(output)
-        return output, block_features
+        return output.view(batch_size, self.num_sources, self.input_dim, -1), block_features
 
 class ConvTasNet(torch.nn.Module):
     """Conv-TasNet implementation for both causal and non-causal settings.

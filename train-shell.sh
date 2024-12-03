@@ -16,9 +16,9 @@
 #BSUB -R "rusage[mem=32GB]"
 
 # stdout/stderr files for debugging (%J is substituted for job ID)
-#BSUB -o my_run_%J.out
-#BSUB -e my_run_%J.err
+#BSUB -o ../my_run_%J.out
+#BSUB -e ../my_run_%J.err
 
 # your training script here, e.g.
 # activate environment ...
-python /dtu/blackhole/01/212577/causal-speech-enhancement/training/transfer_cosine_similarity.py > /dtu/blackhole/01/212577/causal-speech-enhancement/training/train_cosine_similarity.log
+python /dtu/blackhole/01/212577/causal-speech-enhancement/training/transfer_cosine_similarity.py > /dtu/blackhole/01/212577/train_cosine_similarity.log
