@@ -25,7 +25,7 @@ class CausalConvTranspose1D(nn.Module):
         padding (int, optional): Padding added to the input (defaults to 0).
         output_padding (int, optional): Extra padding added to the output.
     """
-    def __init__(self, in_channels, out_channels, kernel_size, stride, padding=0, output_padding=0):
+    def __init__(self, in_channels, out_channels, kernel_size, stride, output_padding=0):
         super(CausalConvTranspose1D, self).__init__()
         self.kernel_size = kernel_size
         self.stride = stride
@@ -228,7 +228,7 @@ class ConvTasNet(torch.nn.Module):
         )
         self.decoder = CausalConvTranspose1D(
             enc_num_feats, 1, kernel_size=enc_kernel_size,
-            stride=enc_kernel_size // 2, padding=0, output_padding=0
+            stride=enc_kernel_size // 2, output_padding=0
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
