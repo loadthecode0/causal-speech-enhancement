@@ -36,7 +36,6 @@ class CausalConvTranspose1D(nn.Module):
             out_channels,
             kernel_size,
             stride=stride,
-            padding=0,  # Padding will be applied manually to ensure causality
             output_padding=output_padding,
         )
         # Compute the required causal padding
@@ -212,9 +211,9 @@ class ConvTasNet(torch.nn.Module):
                  msk_num_layers: int = 8, msk_num_stacks: int = 3,
                  msk_activate: str = "sigmoid", causal: bool = False):
         super().__init__()
-        self.encoder = torch.nn.Conv1d(
+        self.encoder = torch.nn.CausalConv1d(
             1, enc_num_feats, kernel_size=enc_kernel_size,
-            stride=enc_kernel_size // 2, padding=enc_kernel_size // 2, bias=False,
+            stride=enc_kernel_size // 2, bias=False,
         )
         self.mask_generator = MaskGenerator(
             input_dim=enc_num_feats,
@@ -227,9 +226,9 @@ class ConvTasNet(torch.nn.Module):
             msk_activate=msk_activate,
             causal=causal,
         )
-        self.decoder = torch.nn.ConvTranspose1d(
+        self.decoder = torch.nn.CausalConvTranspose1D(
             enc_num_feats, 1, kernel_size=enc_kernel_size,
-            stride=enc_kernel_size // 2, padding=enc_kernel_size // 2, bias=False,
+            stride=enc_kernel_size // 2, bias=False,
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
