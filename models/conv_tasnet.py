@@ -25,7 +25,7 @@ class CausalConvTranspose1D(nn.Module):
         padding (int, optional): Padding added to the input (defaults to 0).
         output_padding (int, optional): Extra padding added to the output.
     """
-    def __init__(self, in_channels, out_channels, kernel_size, stride, output_padding=0,bias):
+    def __init__(self, in_channels, out_channels, kernel_size, stride,bias, output_padding=0):
         super(CausalConvTranspose1D, self).__init__()
         self.kernel_size = kernel_size
         self.stride = stride
@@ -45,7 +45,7 @@ class CausalConvTranspose1D(nn.Module):
         return self.conv_transpose(x)
 
 class CausalConv1D(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, dilation=1, groups=1, bias):
+    def __init__(self, in_channels, out_channels, kernel_size, bias, dilation=1, groups=1):
         super(CausalConv1D, self).__init__()
         self.left_padding = (kernel_size - 1) * dilation
         self.conv = nn.Conv1d(
