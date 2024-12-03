@@ -130,6 +130,7 @@ class CausalConvBlock(torch.nn.Module):
                 kernel_size=kernel_size,
                 dilation=dilation,
                 groups=hidden_channels,
+                bias=False,
             ),
             torch.nn.PReLU(),
         )
