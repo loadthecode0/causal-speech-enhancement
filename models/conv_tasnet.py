@@ -210,7 +210,7 @@ class ConvTasNet(torch.nn.Module):
         super().__init__()
         self.encoder = CausalConv1D(
             1, enc_num_feats, kernel_size=enc_kernel_size,
-            dilation=1, groups=1
+            dilation=1, groups=1, , bias=False
         )
         self.mask_generator = MaskGenerator(
             input_dim=enc_num_feats,
@@ -225,7 +225,7 @@ class ConvTasNet(torch.nn.Module):
         )
         self.decoder = CausalConvTranspose1D(
             enc_num_feats, 1, kernel_size=enc_kernel_size,
-            stride=enc_kernel_size // 2, output_padding=0
+            stride=enc_kernel_size // 2, output_padding=0, , bias=False
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
