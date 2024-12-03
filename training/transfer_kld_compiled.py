@@ -38,33 +38,35 @@ valid_loader = data_loader.get_loader(split="valid")
 def remap_keys(state_dict):
     new_state_dict = {}
     for key, value in state_dict.items():
-        # Remove unexpected biases
-        if "conv.bias" in key:
+        # Remap encoder and decoder keys
+        if key == "encoder.weight":
+            new_key = "encoder.conv.weight"
+        elif key == "decoder.weight":
+            new_key = "decoder.conv_transpose.weight"
+        # Remove unexpected bias terms if not needed
+        elif key == "mask_generator.input_conv.bias" or key == "mask_generator.output_conv.bias":
             continue
-        if key.startswith("encoder.weight"):
-            new_key = key.replace("encoder.weight", "encoder.conv.weight")
-        elif key.startswith("decoder.weight"):
-            new_key = key.replace("decoder.weight", "decoder.conv_transpose.weight")
-        elif key.startswith("encoder.bias"):
-            new_key = key.replace("encoder.bias", "encoder.conv.bias")
-        elif key.startswith("decoder.bias"):
-            new_key = key.replace("decoder.bias", "decoder.conv_transpose.bias")
         else:
             new_key = key  # Keep other keys unchanged
         new_state_dict[new_key] = value
     return new_state_dict
+
     
 # Load pre-trained teacher model (non-causal) and freeze its weights
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 teacher = build_conv_tasnet(causal=False, num_sources=2).to(device)
 teacher_checkpoint = model_dir + "conv_tasnet_noncausal_best_model.pth"
 teacher_state_dict = torch.load(teacher_checkpoint, map_location=device)["model_state_dict"]
-teacher.load_state_dict(teacher_state_dict)
+
+# Remap teacher state_dict keys
+remapped_teacher_state_dict = remap_keys(teacher_state_dict)
+teacher.load_state_dict(remapped_teacher_state_dict)
 teacher.eval()  # Teacher remains in evaluation mode
 for param in teacher.parameters():
     param.requires_grad = False
 logger.info("Pre-trained teacher model loaded and frozen")
-# Compile the student model for optimization
+
+# Compile the teacher model for optimization
 teacher = torch.compile(teacher, backend="inductor")
 logger.info("Teacher model compiled with torch.compile")
 
@@ -72,12 +74,16 @@ logger.info("Teacher model compiled with torch.compile")
 student = build_conv_tasnet(causal=True, num_sources=2).to(device)
 student_checkpoint = model_dir + "conv_tasnet_causal_best_model.pth"
 student_state_dict = torch.load(student_checkpoint, map_location=device)["model_state_dict"]
-student.load_state_dict(remap_keys(student_state_dict))
+
+# Remap student state_dict keys
+remapped_student_state_dict = remap_keys(student_state_dict)
+student.load_state_dict(remapped_student_state_dict)
 logger.info("Pre-trained student model loaded with filtered keys")
 
 # Compile the student model for optimization
 student = torch.compile(student, backend="inductor")
 logger.info("Student model compiled with torch.compile")
+
 
 # Define loss functions
 criterion_task = SISNRLoss()  # Task-specific loss
