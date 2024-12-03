@@ -46,7 +46,7 @@ class CausalConvTranspose1D(nn.Module):
         x = F.pad(x, (self.left_padding, 0))
         return self.conv_transpose(x)
 
-class CausalConv1D(nn.Module):
+class CausalConv1D(torch.nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, dilation=1, groups=1):
         super(CausalConv1D, self).__init__()
         self.left_padding = (kernel_size - 1) * dilation
