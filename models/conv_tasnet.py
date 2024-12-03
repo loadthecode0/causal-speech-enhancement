@@ -13,6 +13,37 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+class CausalConvTranspose1D(nn.Module):
+    """
+    Implements a causal transposed convolution (deconvolution) layer.
+    
+    Args:
+        in_channels (int): Number of input channels.
+        out_channels (int): Number of output channels.
+        kernel_size (int): Size of the transposed convolution kernel.
+        stride (int): Stride of the transposed convolution.
+        padding (int, optional): Padding added to the input (defaults to 0).
+        output_padding (int, optional): Extra padding added to the output.
+    """
+    def __init__(self, in_channels, out_channels, kernel_size, stride, bias, output_padding=0):
+        super(CausalConvTranspose1D, self).__init__()
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.output_padding = output_padding
+        self.conv_transpose = nn.ConvTranspose1d(
+            in_channels,
+            out_channels,
+            kernel_size,
+            stride=stride,
+            output_padding=output_padding,
+            bias=bias,
+        )
+
+    def forward(self, x):
+        # Apply causal padding to ensure no future access
+        x = F.pad(x, (self.left_padding, 0))
+        return self.conv_transpose(x)
+
 class CausalConv1D(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, dilation=1, groups=1):
         super(CausalConv1D, self).__init__()
@@ -55,7 +86,6 @@ class ConvBlock(torch.nn.Module):
                 hidden_channels,
                 hidden_channels,
                 kernel_size=kernel_size,
-                padding= (dilation * (kernel_size - 1) // 2),
                 dilation=dilation,
                 groups=hidden_channels,
                 bias = False
