@@ -120,6 +120,8 @@ for epoch in range(num_epochs):
         # Accumulate loss
         running_loss += loss
         train_loader_tqdm.set_postfix(loss=loss, avg_loss=running_loss / (batch_idx + 1))
+        
+        if batch_idx == 20: break
 
     avg_train_loss = running_loss / len(train_loader)
     train_losses.append(avg_train_loss)
