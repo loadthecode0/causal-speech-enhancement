@@ -211,9 +211,9 @@ class ConvTasNet(torch.nn.Module):
                  msk_num_layers: int = 8, msk_num_stacks: int = 3,
                  msk_activate: str = "sigmoid", causal: bool = False):
         super().__init__()
-        self.encoder = torch.nn.CausalConv1D(
+        self.encoder = CausalConv1D(
             1, enc_num_feats, kernel_size=enc_kernel_size,
-            stride=enc_kernel_size // 2, bias=False,
+            bias=False,
         )
         self.mask_generator = MaskGenerator(
             input_dim=enc_num_feats,
@@ -226,9 +226,9 @@ class ConvTasNet(torch.nn.Module):
             msk_activate=msk_activate,
             causal=causal,
         )
-        self.decoder = torch.nn.CausalConvTranspose1D(
+        self.decoder = CausalConvTranspose1D(
             enc_num_feats, 1, kernel_size=enc_kernel_size,
-            stride=enc_kernel_size // 2, bias=False,
+            stride=enc_kernel_size // 2, padding=0, output_padding=0
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
