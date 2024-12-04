@@ -13,6 +13,54 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import torch
+from torch import nn
+from torch import Tensor
+import torch.nn.functional as F
+from typing import Optional, List
+
+class CausalConvTranspose1d(nn.ConvTranspose1d):
+    def __init__(self, *args, **kwargs):
+        """
+        Inherits from nn.ConvTranspose1d.
+        """
+        super().__init__(*args, **kwargs)
+        # Override padding to only consider left padding
+        self.left_padding = self.padding[0]
+        self.padding = (0,)  # Ensure no automatic symmetric padding
+
+    def forward(self, input: Tensor, output_size: Optional[List[int]] = None) -> Tensor:
+        if self.padding_mode != "zeros":
+            raise ValueError("Only `zeros` padding mode is supported for CausalConvTranspose1d")
+
+        # Calculate the output_padding explicitly
+        num_spatial_dims = 1
+        output_padding = self._output_padding(
+            input,
+            output_size,
+            self.stride,
+            (self.left_padding,),  # Use left padding only
+            self.kernel_size,
+            num_spatial_dims,
+            self.dilation,
+        )
+
+        # Apply manual left padding to the input tensor
+        input = F.pad(input, (self.left_padding, 0))  # Left-side padding only
+
+        # Perform the convolution transpose operation
+        return F.conv_transpose1d(
+            input,
+            self.weight,
+            self.bias,
+            self.stride,
+            (0,),  # No additional padding passed here; handled manually above
+            output_padding,
+            self.groups,
+            self.dilation,
+        )
+
+
 class CausalConv1D(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, dilation=1, groups=1):
         super(CausalConv1D, self).__init__()
