@@ -162,9 +162,6 @@ for epoch in range(num_epochs):
     val_losses.append(avg_val_loss)
 
 
-    # Log MOS score
-    logger.info(f"Epoch {epoch + 1}/{num_epochs}, Avg MOS: {avg_mos:.4f}")
-
     # Logging and ETA
     elapsed_time = time.time() - start_time
     logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Time: {elapsed_time:.2f}s")

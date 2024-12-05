@@ -16,8 +16,8 @@
 #BSUB -R "rusage[mem=32GB]"
 
 # stdout/stderr files for debugging (%J is substituted for job ID)
-#BSUB -o ../my_run_%J.out
-#BSUB -e ../my_run_%J.err
+#BSUB -o my_run_%J.out
+#BSUB -e my_run_%J.err
 
 # your training script here, e.g.
 # activate environment ...
