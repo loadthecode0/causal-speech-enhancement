@@ -115,8 +115,6 @@ for epoch in range(num_epochs):
     # Training with progress bar
     train_loader_tqdm = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs} [Train]", unit="batch")
     for batch_idx, (clean_waveform, noisy_waveform) in enumerate(train_loader_tqdm):
-        if batch_idx == 20:
-            break
         clean_waveform = clean_waveform.to(device)
         noisy_waveform = noisy_waveform.to(device)
 
