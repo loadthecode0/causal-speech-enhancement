@@ -31,6 +31,7 @@ data_loader = EARSWHAMDataLoader(
     num_workers=4  # Number of workers for DataLoader
 )
 logger.info('Data loader initialized')
+logger.info('Cosine Similarity with an untrained student model')
 
 train_loader = data_loader.get_loader(split="train")
 valid_loader = data_loader.get_loader(split="valid")
@@ -48,13 +49,8 @@ logger.info("Pre-trained teacher model loaded and frozen")
 teacher = torch.compile(teacher, backend="inductor")
 logger.info("Teacher model compiled with torch.compile")
 
-# Load pre-trained student model (causal)
+# Student model (untrained)
 student = build_conv_tasnet(causal=True, num_sources=2).to(device)
-student_checkpoint = model_dir + "conv_tasnet_causal_best_model.pth"
-student.load_state_dict(torch.load(student_checkpoint, map_location=device)["model_state_dict"])
-logger.info("Pre-trained student model loaded")
-
-# Compile the student model for optimization
 student = torch.compile(student, backend="inductor")
 logger.info("Student model compiled with torch.compile")
 
@@ -133,7 +129,6 @@ for epoch in range(num_epochs):
     # Validation loop
     student.eval()
     val_loss = 0.0
-    mos_scores = []
     valid_loader_tqdm = tqdm(valid_loader, desc=f"Epoch {epoch + 1}/{num_epochs} [Valid]", unit="batch")
     with torch.no_grad():
         for clean_waveform, noisy_waveform in valid_loader_tqdm:
@@ -153,7 +148,6 @@ for epoch in range(num_epochs):
             valid_loader_tqdm.set_postfix(
                 loss=loss.item(),
                 avg_loss = val_loss / (len(valid_loader_tqdm)+1),
-                avg_mos = sum(mos_scores) / len(mos_scores) if mos_scores else 0
             )
 
     avg_val_loss = val_loss / len(valid_loader)
@@ -165,7 +159,7 @@ for epoch in range(num_epochs):
     logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Time: {elapsed_time:.2f}s")
 
     # Save model every N epochs
-    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_cosine{epoch + 1}.pth")
+    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_cosine_untrained{epoch + 1}.pth")
     if (epoch + 1) % checkpoint_interval == 0:
         torch.save({
             'epoch': epoch + 1,
@@ -177,7 +171,7 @@ for epoch in range(num_epochs):
         logger.info(f"Checkpoint saved at {checkpoint_path}")
 
     # Save best model
-    best_model_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_cosine_best_model.pth")
+    best_model_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_cosine_untrained_best_model.pth")
     if avg_val_loss < best_val_loss:
         best_val_loss = avg_val_loss
         torch.save({
@@ -190,13 +184,13 @@ for epoch in range(num_epochs):
         logger.info(f"Best model saved at {best_model_path} with validation loss {best_val_loss:.4f}")
 
 # Save final training curve
-training_curve_path = os.path.join(stats_dir, "conv_tasnet_causal_transfer_cosine_training_curve.png")
+training_curve_path = os.path.join(stats_dir, "conv_tasnet_causal_transfer_cosine_untrained_training_curve.png")
 plt.figure(figsize=(10, 6))
 plt.plot(range(1, num_epochs + 1), train_losses, label="Train Loss")
 plt.plot(range(1, num_epochs + 1), val_losses, label="Validation Loss")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
-plt.title("Training and Validation Loss Curve (Transfer Learning by Cosine Similarity)")
+plt.title("Training and Validation Loss Curve (Transfer Learning by Cosine Similarity, untrained student)")
 plt.legend()
 plt.grid(True)
 plt.savefig(training_curve_path)
