@@ -15,6 +15,7 @@ from training.losses.si_snr import SISNRLoss  # SI-SNR loss function
 from data.dataloader import EARSWHAMDataLoader
 import torch.nn.functional as F
 import logging
+from training.initialization.spectral_init import apply_spectral_initialization
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -38,6 +39,7 @@ valid_loader = data_loader.get_loader(split="valid")
 # Load pre-trained teacher model (non-causal) and freeze its weights
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 teacher = build_conv_tasnet(causal=False, num_sources=2).to(device)
+apply_spectral_initialization(teacher)
 teacher_checkpoint = model_dir + "conv_tasnet_noncausal_spec_best_model.pth"
 teacher.load_state_dict(torch.load(teacher_checkpoint, map_location=device)["model_state_dict"])
 teacher.eval()  # Teacher remains in evaluation mode
