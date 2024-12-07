@@ -4,7 +4,7 @@
 #BSUB -q gpua100
 
 # job name
-#BSUB -J train-convtasnet
+#BSUB -J transfer_learn_cosine_similarity_spectral_initialization
 
 # 4 cpus, 1 machine, 1 gpu, 24 hours (the max)
 #BSUB -n 4
@@ -16,9 +16,9 @@
 #BSUB -R "rusage[mem=32GB]"
 
 # stdout/stderr files for debugging (%J is substituted for job ID)
-#BSUB -o my_run_%J.out
-#BSUB -e my_run_%J.err
+#BSUB -o my_run_cos_spec_%J.out
+#BSUB -e my_run_cos_spec_%J.err
 
 # your training script here, e.g.
 # activate environment ...
-python /dtu/blackhole/18/212376/causal-speech-enhancement/training/train_conv_tasnet_noncausal.py > /dtu/blackhole/18/212376/causal-speech-enhancement/training/train_conv_tasnet_noncausal_output.log
+python /dtu/blackhole/19/212473/causal-speech-enhancement/training/transfer_cosine_similarity.py > /dtu/blackhole/19/212473/causal-speech-enhancement/training/transfer_cosine_similarity.log
