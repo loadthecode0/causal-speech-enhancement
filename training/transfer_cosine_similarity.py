@@ -20,8 +20,8 @@ logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %
 logger = logging.getLogger(__name__)
 
 # Directories for saving models and stats
-model_dir = "/dtu/blackhole/01/212577/causal-speech-enhancement/models/saved-models/"
-stats_dir = "/dtu/blackhole/01/212577/causal-speech-enhancement/experiments/"
+model_dir = "/dtu/blackhole/18/212376/causal-speech-enhancement/models/saved-models/"
+stats_dir = "/dtu/blackhole/18/212376/causal-speech-enhancement/experiments/"
 
 # Initialize data loaders
 data_loader = EARSWHAMDataLoader(
