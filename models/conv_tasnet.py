@@ -73,8 +73,7 @@ class ConvBlock(torch.nn.Module):
         residual = self.res_out(feature) if not self.no_residual else None
         skip_out = self.skip_out(feature)
         return residual, skip_out
-
-
+        
 class CausalConvBlock(torch.nn.Module):
     """Causal 1D Convolutional block.
 
@@ -114,7 +113,6 @@ class CausalConvBlock(torch.nn.Module):
         skip_out = self.skip_out(feature)
         return residual, skip_out
 
-
 class MaskGenerator(torch.nn.Module):
     """TCN-based Mask Generator for both causal and non-causal versions.
 
@@ -151,7 +149,23 @@ class MaskGenerator(torch.nn.Module):
         self.output_conv = torch.nn.Conv1d(num_feats, input_dim * num_sources, kernel_size=1, bias = False)
         self.mask_activate = torch.nn.Sigmoid() if msk_activate == "sigmoid" else torch.nn.ReLU()
 
+    # def forward(self, input: torch.Tensor) -> torch.Tensor:
+    #     batch_size = input.shape[0]
+    #     feats = self.input_norm(input)
+    #     feats = self.input_conv(feats)
+    #     output = 0.0
+    #     for layer in self.conv_layers:
+    #         residual, skip = layer(feats)
+    #         if residual is not None:
+    #             feats = feats + residual
+    #         output = output + skip
+    #     output = self.output_prelu(output)
+    #     output = self.output_conv(output)
+    #     output = self.mask_activate(output)
+    #     return output.view(batch_size, self.num_sources, self.input_dim, -1)
+    
     def forward(self, input: torch.Tensor) -> torch.Tensor:
+        block_features = [] 
         batch_size = input.shape[0]
         feats = self.input_norm(input)
         feats = self.input_conv(feats)
@@ -161,11 +175,11 @@ class MaskGenerator(torch.nn.Module):
             if residual is not None:
                 feats = feats + residual
             output = output + skip
+            block_features.append(feats) 
         output = self.output_prelu(output)
         output = self.output_conv(output)
         output = self.mask_activate(output)
-        return output.view(batch_size, self.num_sources, self.input_dim, -1)
-
+        return output.view(batch_size, self.num_sources, self.input_dim, -1), block_features
 
 class ConvTasNet(torch.nn.Module):
     """Conv-TasNet implementation for both causal and non-causal settings.
@@ -200,29 +214,32 @@ class ConvTasNet(torch.nn.Module):
             stride=enc_kernel_size // 2, padding=enc_kernel_size // 2, bias=False,
         )
 
+    # def forward(self, input: torch.Tensor) -> torch.Tensor:
+    #     padded, num_pads = self._align_num_frames_with_strides(input)
+    #     feats = self.encoder(padded)
+    #     masked = self.mask_generator(feats) * feats.unsqueeze(1)
+    #     output = self.decoder(masked.view(-1, feats.size(1), feats.size(2)))
+    #     return output.view(input.size(0), -1, input.size(2))
+
     def forward(self, input: torch.Tensor) -> torch.Tensor:
+        features = []
         padded, num_pads = self._align_num_frames_with_strides(input)
         feats = self.encoder(padded)
-        masked = self.mask_generator(feats) * feats.unsqueeze(1)
+        features.append(feats) 
+        masks, mask_features = self.mask_generator(feats)
+        features.extend(mask_features) 
+        masked = masks * feats.unsqueeze(1)
+        features.append(masked)
         output = self.decoder(masked.view(-1, feats.size(1), feats.size(2)))
-        return output.view(input.size(0), -1, input.size(2))
+        output = output.view(input.size(0), -1, input.size(2))
+        return output, features
 
     def _align_num_frames_with_strides(self, input: torch.Tensor) -> Tuple[torch.Tensor, int]:
         num_frames = input.size(-1)
         stride = self.encoder.stride[0]
         pad = (stride - (num_frames % stride)) % stride
         return torch.nn.functional.pad(input, (0, pad)), pad
-
-
+        
 def build_conv_tasnet(causal: bool = False, **kwargs) -> ConvTasNet:
     """Wrapper to instantiate either causal or non-causal Conv-TasNet."""
     return ConvTasNet(causal=causal, **kwargs)
-
-'''
-Usage
-Instantiate Non-Causal Model:
-model = build_conv_tasnet(causal=False, num_sources=2)
-
-Instantiate Causal Model:
-model = build_conv_tasnet(causal=True, num_sources=2)
-'''
