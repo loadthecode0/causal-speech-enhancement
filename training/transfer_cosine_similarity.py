@@ -38,7 +38,7 @@ valid_loader = data_loader.get_loader(split="valid")
 # Load pre-trained teacher model (non-causal) and freeze its weights
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 teacher = build_conv_tasnet(causal=False, num_sources=2).to(device)
-teacher_checkpoint = model_dir + "conv_tasnet_noncausal_best_model.pth"
+teacher_checkpoint = model_dir + "conv_tasnet_noncausal_spec_best_model.pth"
 teacher.load_state_dict(torch.load(teacher_checkpoint, map_location=device)["model_state_dict"])
 teacher.eval()  # Teacher remains in evaluation mode
 for param in teacher.parameters():
@@ -163,7 +163,7 @@ for epoch in range(num_epochs):
     logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Time: {elapsed_time:.2f}s")
 
     # Save model every N epochs
-    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_cosine{epoch + 1}.pth")
+    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_spectral_cosine{epoch + 1}.pth")
     if (epoch + 1) % checkpoint_interval == 0:
         torch.save({
             'epoch': epoch + 1,
@@ -175,7 +175,7 @@ for epoch in range(num_epochs):
         logger.info(f"Checkpoint saved at {checkpoint_path}")
 
     # Save best model
-    best_model_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_cosine_best_model.pth")
+    best_model_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_spectral_cosine_best_model.pth")
     if avg_val_loss < best_val_loss:
         best_val_loss = avg_val_loss
         torch.save({
@@ -188,7 +188,7 @@ for epoch in range(num_epochs):
         logger.info(f"Best model saved at {best_model_path} with validation loss {best_val_loss:.4f}")
 
 # Save final training curve
-training_curve_path = os.path.join(stats_dir, "conv_tasnet_causal_transfer_cosine_training_curve.png")
+training_curve_path = os.path.join(stats_dir, "conv_tasnet_causal_transfer_spectral_cosine_training_curve.png")
 plt.figure(figsize=(10, 6))
 plt.plot(range(1, num_epochs + 1), train_losses, label="Train Loss")
 plt.plot(range(1, num_epochs + 1), val_losses, label="Validation Loss")
