@@ -69,9 +69,10 @@ best_val_loss = float('inf')
 train_losses = []
 val_losses = []
 
-def cosine_similarity_loss(teacher_features, student_features):
-    # Compute cosine similarity
-    return 1 - F.cosine_similarity(teacher_features, student_features, dim=1).mean()
+def l1_feature_loss(teacher_features, student_features):
+    loss = sum(F.l1_loss(student_feat, teacher_feat) 
+               for teacher_feat, student_feat in zip(teacher_features, student_features)) / len(student_features)
+    return loss
 
 logger.info(f"Starting transfer learning with {num_epochs} epochs")
 
@@ -86,11 +87,8 @@ def train_step(student, teacher, noisy_waveform, clean_waveform, criterion_task,
 
     # Loss computation
     loss_task = criterion_task(clean_waveform, student_output)
-    loss_cosine = sum(
-        cosine_similarity_loss(teacher_feat, student_feat)
-        for teacher_feat, student_feat in zip(teacher_features, student_features)
-    ) / len(student_features)    
-    loss = alpha * loss_task + (1 - alpha) * loss_cosine
+    loss_l1_features = l1_feature_loss(teacher_features, student_features)  
+    loss = alpha * loss_task + (1 - alpha) * loss_l1_features
 
     # Backpropagation and optimization
     optimizer.zero_grad()
@@ -159,7 +157,7 @@ for epoch in range(num_epochs):
     logger.info(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Time: {elapsed_time:.2f}s")
 
     # Save model every N epochs
-    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_cosine_untrained{epoch + 1}.pth")
+    checkpoint_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_l1_{epoch + 1}.pth")
     if (epoch + 1) % checkpoint_interval == 0:
         torch.save({
             'epoch': epoch + 1,
@@ -171,7 +169,7 @@ for epoch in range(num_epochs):
         logger.info(f"Checkpoint saved at {checkpoint_path}")
 
     # Save best model
-    best_model_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_cosine_untrained_best_model.pth")
+    best_model_path = os.path.join(model_dir, f"conv_tasnet_causal_transfer_l1_best_model.pth")
     if avg_val_loss < best_val_loss:
         best_val_loss = avg_val_loss
         torch.save({
@@ -184,13 +182,13 @@ for epoch in range(num_epochs):
         logger.info(f"Best model saved at {best_model_path} with validation loss {best_val_loss:.4f}")
 
 # Save final training curve
-training_curve_path = os.path.join(stats_dir, "conv_tasnet_causal_transfer_cosine_untrained_training_curve.png")
+training_curve_path = os.path.join(stats_dir, "conv_tasnet_causal_transfer_l1_training_curve.png")
 plt.figure(figsize=(10, 6))
 plt.plot(range(1, num_epochs + 1), train_losses, label="Train Loss")
 plt.plot(range(1, num_epochs + 1), val_losses, label="Validation Loss")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
-plt.title("Training and Validation Loss Curve (Transfer Learning by Cosine Similarity, untrained student)")
+plt.title("Training and Validation Loss Curve (Transfer Learning by L1 Regularization)")
 plt.legend()
 plt.grid(True)
 plt.savefig(training_curve_path)
