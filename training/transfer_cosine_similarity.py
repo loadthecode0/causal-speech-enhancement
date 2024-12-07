@@ -188,7 +188,7 @@ for epoch in range(num_epochs):
         logger.info(f"Best model saved at {best_model_path} with validation loss {best_val_loss:.4f}")
 
 # Save final training curve
-training_curve_path = os.path.join(/dtu/blackhole/19/212473/causal-speech-enhancement/experiments/, "conv_tasnet_causal_transfer_spectral_cosine_training_curve.png")
+training_curve_path = os.path.join("/dtu/blackhole/19/212473/causal-speech-enhancement/experiments/", "conv_tasnet_causal_transfer_spectral_cosine_training_curve.png")
 plt.figure(figsize=(10, 6))
 plt.plot(range(1, num_epochs + 1), train_losses, label="Train Loss")
 plt.plot(range(1, num_epochs + 1), val_losses, label="Validation Loss")
