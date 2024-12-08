@@ -27,9 +27,9 @@ def load_model(model_name, causal):
 def calculate_mos(clean_waveform, enhanced_waveform, subjective_model):
     # Ensure both clean and enhanced waveforms are mono
     if clean_waveform.size(1) > 1:  # Check for multiple channels
-        clean_waveform = downmix_to_mono(clean_waveform)
+        clean_waveform = clean_waveform.mean(dim=1, keepdim=True)
     if enhanced_waveform.size(1) > 1:  # Check for multiple channels
-        enhanced_waveform = downmix_to_mono(enhanced_waveform)
+        enhanced_waveform = enhanced_waveform.mean(dim=1, keepdim=True)
     
     # Pass the waveforms to the subjective model
     mos = subjective_model(enhanced_waveform[0:1, :], clean_waveform[0:1, :])
