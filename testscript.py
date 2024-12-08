@@ -6,6 +6,7 @@ from torchaudio.pipelines import SQUIM_SUBJECTIVE
 from tqdm import tqdm
 import json
 from data.dataloader import EARSWHAMDataLoader
+from torchaudio.functional import downmix_to_mono
 from models.conv_tasnet import build_conv_tasnet  # Conv-TasNet model
 
 # Device setup
@@ -24,6 +25,13 @@ def load_model(model_name, causal):
 
 # Function to calculate MOS
 def calculate_mos(clean_waveform, enhanced_waveform, subjective_model):
+    # Ensure both clean and enhanced waveforms are mono
+    if clean_waveform.size(1) > 1:  # Check for multiple channels
+        clean_waveform = downmix_to_mono(clean_waveform)
+    if enhanced_waveform.size(1) > 1:  # Check for multiple channels
+        enhanced_waveform = downmix_to_mono(enhanced_waveform)
+    
+    # Pass the waveforms to the subjective model
     mos = subjective_model(enhanced_waveform[0:1, :], clean_waveform[0:1, :])
     return mos[0].item()
 
