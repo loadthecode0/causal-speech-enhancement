@@ -4,7 +4,7 @@
 #BSUB -q gpua100
 
 # job name
-#BSUB -J train-l1
+#BSUB -J train-cosine-untrained
 
 # 4 cpus, 1 machine, 1 gpu, 24 hours (the max)
 #BSUB -n 4
@@ -21,4 +21,4 @@
 
 # your training script here, e.g.
 # activate environment ...
-python /dtu/blackhole/01/212577/causal-speech-enhancement/training/transfer_cosine_similarity.py > /dtu/blackhole/01/212577/train_l1.log
+python /dtu/blackhole/01/212577/causal-speech-enhancement/training/transfer_cosine_similarity.py > /dtu/blackhole/01/212577/causal-speech-enhancement/training/train_cosine_similarity_untrained.log
